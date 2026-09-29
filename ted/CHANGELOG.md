@@ -4,6 +4,10 @@ Nouveautés détaillées de chaque version : <https://ted-energy.fr/evolutions>
 
 ## 3.4
 
+- Installation depuis le dépôt TED : mises à jour signalées par Home
+  Assistant. Programme compilé, identique pour Intel/AMD et ARM64.
+- Licence gratuite obtenue directement depuis TED (assistant de démarrage ou
+  Paramètres › Licence) : prénom et email, activation automatique.
 - Abonnement et tarifs : jusqu'à 6 prix (Tempo, heures super creuses,
   périodes personnalisées), horaires automatiques ou peints à la main. Le
   bilan du jour et des 7 derniers jours détaille le réseau par période et

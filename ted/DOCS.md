@@ -13,8 +13,8 @@ Guide complet, avec captures et dépannage :
   leur marque).
 - Votre compteur d'électricité remonte dans Home Assistant (mesure positive en
   import, négative en injection), ou un compteur Shelly est lisible sur le réseau.
-- Votre fichier de licence TED (gratuit, page
-  <https://ted-energy.fr/telecharger>).
+- C'est tout : la licence TED, gratuite, s'obtient depuis TED au premier
+  lancement (prénom et email).
 
 ## Première mise en route
 
@@ -22,8 +22,10 @@ Guide complet, avec captures et dépannage :
    **Afficher dans la barre latérale**, puis cliquez sur **Démarrer**.
 2. Ouvrez TED : entrée **TED** de la barre latérale, ou bouton
    **Ouvrir l'interface web**.
-3. Dans TED, page **Paramètres** → **Sauvegarde, restauration et licence** →
-   **Importer une licence…** : choisissez votre fichier de licence.
+3. L'assistant de démarrage vous propose la licence gratuite : indiquez votre
+   prénom et votre email, TED l'obtient auprès de ted-energy.fr et l'active
+   tout seul. Vous avez déjà un fichier de licence ? Page **Paramètres** →
+   **Sauvegarde, restauration et licence** → **Importer une licence…**.
 4. Suivez la mise en route (compteur, puis onduleurs) :
    <https://ted-energy.fr/mise-en-route>
 
