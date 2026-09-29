@@ -3,7 +3,7 @@
 # Home Assistant télécharge l'image Docker de TED (code compilé, Intel/AMD et
 # ARM64) : ni code ni Dockerfile ici. version = étiquette de l'image.
 name: TED Energy Pilot
-version: "3.4"
+version: "3.5"
 image: "tedenergy/ted"
 slug: ted
 description: >-

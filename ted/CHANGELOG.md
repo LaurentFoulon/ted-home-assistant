@@ -2,6 +2,10 @@
 
 Nouveautés détaillées de chaque version : <https://ted-energy.fr/evolutions>
 
+## 3.5
+
+- TED 3.5 : nouveautés détaillées sur <https://ted-energy.fr/evolutions>.
+
 ## 3.4
 
 - Installation depuis le dépôt TED : mises à jour signalées par Home
