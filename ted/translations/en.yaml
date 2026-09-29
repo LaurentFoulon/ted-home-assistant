@@ -1,0 +1,15 @@
+configuration:
+  verbose_log:
+    name: Detailed log
+    description: >-
+      Shows every regulation cycle and every web interface request in the app
+      log (troubleshooting). Keep it disabled in normal use.
+  log_retention_days:
+    name: Log retention (days)
+    description: >-
+      Number of days of TED log files kept in the app folder (20 to 30 MB per
+      day). Older files are deleted.
+network:
+  5000/tcp: >-
+    Direct TED web interface and mobile app (5001 recommended). Empty: TED stays
+    available from the sidebar, but no longer from the phone.

@@ -1,0 +1,15 @@
+configuration:
+  verbose_log:
+    name: Journal détaillé
+    description: >-
+      Affiche chaque cycle de régulation et chaque requête de l'interface dans
+      le journal de l'application (diagnostic). Laissez désactivé en temps normal.
+  log_retention_days:
+    name: Conservation des journaux (jours)
+    description: >-
+      Nombre de jours de journaux de TED conservés dans le dossier de
+      l'application (20 à 30 Mo par jour). Les plus anciens sont supprimés.
+network:
+  5000/tcp: >-
+    Interface web directe de TED et application mobile (5001 conseillé). Vide :
+    TED reste accessible depuis la barre latérale, mais plus depuis le téléphone.
