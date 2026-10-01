@@ -2,8 +2,8 @@
 # Modèle : build_addon.py y inscrit la version de TED et l'image publique.
 # Home Assistant télécharge l'image Docker de TED (code compilé, Intel/AMD et
 # ARM64) : ni code ni Dockerfile ici. version = étiquette de l'image.
-name: TED Energy Pilot
-version: "3.5"
+name: TED Energy Controller
+version: "3.6"
 image: "tedenergy/ted"
 slug: ted
 description: >-

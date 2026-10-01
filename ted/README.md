@@ -1,4 +1,4 @@
-# TED Energy Pilot
+# TED Energy Controller
 
 Pilotage solaire pour Home Assistant : TED règle la charge et la décharge de
 vos batteries à partir de la mesure de votre compteur, pour consommer votre

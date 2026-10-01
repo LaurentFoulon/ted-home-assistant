@@ -1,4 +1,4 @@
 # Dépôt d'applications Home Assistant de TED (généré par build_addon.py).
-name: TED Energy Pilot
+name: TED Energy Controller
 url: https://ted-energy.fr
 maintainer: TED Energy <https://ted-energy.fr>

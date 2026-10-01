@@ -1,4 +1,4 @@
-# TED Energy Pilot
+# TED Energy Controller
 
 TED pilote vos onduleurs et batteries solaires à partir des mesures de votre
 compteur d'électricité : il charge les batteries avec le surplus solaire et
@@ -13,6 +13,8 @@ Guide complet, avec captures et dépannage :
   leur marque).
 - Votre compteur d'électricité remonte dans Home Assistant (mesure positive en
   import, négative en injection), ou un compteur Shelly est lisible sur le réseau.
+  En triphasé : une entité par phase, ou un Shelly Pro 3EM (les trois phases
+  lues en une seule requête).
 - C'est tout : la licence TED, gratuite, s'obtient depuis TED au premier
   lancement (prénom et email).
 

@@ -1,4 +1,4 @@
-# TED Energy Pilot — dépôt Home Assistant
+# TED Energy Controller — dépôt Home Assistant
 
 TED pilote vos onduleurs et batteries solaires depuis Home Assistant pour
 consommer votre propre production (charge sur le surplus, décharge quand la
@@ -14,7 +14,7 @@ Ou à la main :
 
 1. **Paramètres → Applications → Boutique** → menu **⋮** → **Dépôts**.
 2. Ajoutez l'adresse : `https://github.com/LaurentFoulon/ted-home-assistant`
-3. Installez **TED Energy Pilot**, puis suivez l'onglet **Documentation**.
+3. Installez **TED Energy Controller**, puis suivez l'onglet **Documentation**.
 
 Home Assistant signale ensuite automatiquement chaque nouvelle version de TED.
 
