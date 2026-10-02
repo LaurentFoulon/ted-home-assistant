@@ -7,8 +7,8 @@ version: "3.6"
 image: "tedenergy/ted"
 slug: ted
 description: >-
-  Pilote vos onduleurs et batteries solaires depuis Home Assistant pour
-  consommer votre propre production.
+  HEMS multi-marques : pilote ensemble tous vos onduleurs et batteries
+  solaires, toutes marques confondues, comme une seule batterie.
 url: https://ted-energy.fr/installation/home-assistant
 arch:
   - aarch64

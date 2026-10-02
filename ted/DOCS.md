@@ -1,8 +1,10 @@
 # TED Energy Controller
 
-TED pilote vos onduleurs et batteries solaires à partir des mesures de votre
-compteur d'électricité : il charge les batteries avec le surplus solaire et
-les décharge quand la maison consomme, pour acheter le moins possible au réseau.
+TED Energy Controller est un HEMS multi-marques pour Home Assistant : il pilote
+ensemble vos onduleurs et batteries solaires, quelle que soit leur marque, à
+partir des mesures de votre compteur d'électricité. Il charge les batteries avec
+le surplus solaire et les décharge quand la maison consomme, pour acheter le
+moins possible au réseau.
 
 Guide complet, avec captures et dépannage :
 <https://ted-energy.fr/installation/home-assistant>
