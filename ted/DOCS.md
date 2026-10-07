@@ -56,6 +56,12 @@ Paramètres → Application mobile et accès à distance).
 Si vous videz ce champ, TED reste accessible depuis la barre latérale de Home
 Assistant, mais plus depuis le téléphone.
 
+Le second port, **5004/tcp** (vide par défaut), ne sert qu'à la **console
+d'entreprise** : plusieurs installations reliées par le réseau privé d'une
+entreprise (VPN), administrées depuis une console, sans Internet. Donnez-lui un
+port seulement si vous l'utilisez (dans TED : Paramètres → Console
+d'entreprise), et ne l'ouvrez jamais vers Internet.
+
 ## Vos données
 
 Réglages, onduleurs, historique, licence et journaux sont enregistrés dans le

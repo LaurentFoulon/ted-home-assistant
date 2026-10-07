@@ -3,7 +3,7 @@
 # Home Assistant télécharge l'image Docker de TED (code compilé, Intel/AMD et
 # ARM64) : ni code ni Dockerfile ici. version = étiquette de l'image.
 name: TED Energy Controller
-version: "3.6"
+version: "3.7"
 image: "tedenergy/ted"
 slug: ted
 description: >-
@@ -25,10 +25,13 @@ ingress_port: 8099
 panel_icon: mdi:solar-power
 panel_title: TED
 # Accès direct sur le réseau local (application mobile, accès à distance).
+# 5004 : port entreprise (console d'entreprise sur un réseau privé), fermé par défaut.
 ports:
   5000/tcp: 5001
+  5004/tcp: null
 ports_description:
   5000/tcp: Interface web directe et application mobile TED
+  5004/tcp: Port entreprise (console d'entreprise, réseau privé uniquement)
 # Données de TED dans addon_configs/<application> (partage Samba, sauvegardes).
 map:
   - addon_config:rw
