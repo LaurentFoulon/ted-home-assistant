@@ -2,6 +2,160 @@
 
 Nouveautés détaillées de chaque version : <https://ted-energy.fr/evolutions>
 
+## 3.7.1
+
+- Onduleurs hybrides de toutes marques : la fiche commence par la marque et
+  le modèle (obligatoires) et s'adapte à l'intégration Home Assistant de
+  l'onduleur. Quatre façons de le commander : deux consignes (charge et
+  décharge, avec ou sans sélecteur de mode), une consigne et un sélecteur de
+  sens, une consigne signée (+ / −), ou des actions Home Assistant (Indevolt,
+  Huawei…). Consigne en W, kW, % de la puissance maximale ou en ampères. Seul
+  le niveau de batterie est obligatoire : les autres mesures sont
+  facultatives, et la fiche indique les fonctions qui seront inactives sans
+  elles. Sens de la puissance de la batterie réglable, plusieurs entrées
+  solaires, puissance AC signée, entités en kW converties. Fiches de 20
+  marques (Zendure, seule testée et validée ; Marstek, Indevolt, Anker SOLIX,
+  EcoFlow, Growatt, Huawei, Sungrow, SolarEdge, Victron, Deye, GoodWe,
+  Fox ESS, SolaX, Sigenergy, Solis, SMA, Fronius, Enphase, Tesla, avec leurs
+  prérequis et leurs pièges connus) et « Autre marque », ouverte à tout.
+  Réglages avancés par onduleur : temps de réaction et intervalle minimal
+  entre deux consignes (intégrations lentes). Sans aucune mesure de
+  puissance, le bilan est estimé d'après la consigne (« ≈ »). Les onduleurs
+  Zendure déjà déclarés fonctionnent exactement comme avant.
+- La configuration des onduleurs (marque, modèle, réglages, entités sans nom
+  personnel, bon fonctionnement) est jointe à la validation de la licence,
+  pour constituer la liste des onduleurs compatibles.
+- Fiche d'un onduleur hybride : le niveau minimal pour décharger et le
+  niveau maximal pour charger deviennent facultatifs. Laissés vides, ce sont
+  les niveaux globaux (Paramètres › Batteries et puissances maximales) qui
+  s'appliquent : les onduleurs d'autres marques, sans ce réglage, se
+  déclarent sans rien inventer. Onduleur Zendure : un niveau modifié est
+  écrit dans l'onduleur dès « Appliquer », sans message d'erreur (il
+  fallait parfois cliquer plusieurs fois) ; un message n'apparaît que si
+  l'écriture échoue.
+- Correction : en choisissant l'appareil Zendure dans la fiche d'un onduleur,
+  la puissance maximale de charge proposée était 8 000 W (borne générique de
+  l'entité « input_limit ») au lieu de la vraie limite de l'appareil. Elle
+  est maintenant lue dans son capteur de limite de charge (1 200 W sur un
+  Hyper 2000), sans dépasser la puissance de l'onduleur.
+- Nouveau réglage « Actualisation des variables » (Paramètres › Connexion
+  Home Assistant, toutes les 60 minutes par défaut, 0 = jamais) : les
+  niveaux de batterie renseignés dans la fiche des onduleurs Zendure sont
+  relus dans Home Assistant ; une valeur changée dans l'application du
+  fabricant est reprise dans la fiche et notée dans l'historique des
+  modifications. Une valeur imposée par une automatisation n'est pas reprise.
+- Nouvelle page « Équipements » (à côté de Onduleurs) : déclarez votre
+  borne de recharge pour véhicule électrique, une prise domotique ou un
+  autre appareil avec son entité de puissance de Home Assistant (W ou kW ;
+  positive quand il charge ou consomme, négative quand il restitue, signe
+  inversable). Le tableau montre la puissance en cours et l'énergie chargée
+  et restituée depuis le nombre d'heures ou de jours choisi en haut à droite.
+  Les équipements servent de condition dans les automatisations (puissance,
+  en charge, énergie du jour). Ils ne changent pas la régulation des
+  batteries.
+- Automatisations et notifications : l'interrupteur d'une règle l'active ou
+  la désactive tout de suite, sans devoir l'enregistrer ; ses autres
+  modifications en cours ne sont pas enregistrées pour autant.
+- Erreur 01 (l'onduleur accepte la consigne mais ne l'applique pas) : le
+  test de déblocage se fait désormais dans le sens de la régulation, une
+  petite charge quand les batteries se chargent (charge planifiée comprise),
+  une petite décharge quand elles se déchargent. Un onduleur bloqué n'attend
+  plus la prochaine décharge pour être débloqué. Puissance du test : 10 à
+  50 W (50 W par défaut ; retirés aux autres onduleurs, la régulation
+  n'oscille plus pendant le test). Le test réussit quand la puissance mesurée
+  atteint la valeur demandée à 10 % près ; en charge, le solaire de
+  l'onduleur est déduit (puissance prise au réseau).
+- Nouvel état « Erreur 02 — test impossible pour l'instant », avec sa
+  raison : batterie pleine pour une charge (à 2 % de son maximum : les
+  onduleurs Zendure refusent parfois de charger à 88 % pour 90 %), batterie
+  au minimum ou solaire qui traverse l'onduleur pour une décharge, aucune
+  mesure… Le test part dès que la cause disparaît.
+- Après un déblocage, l'onduleur ne repasse plus à 0 W puis en veille : il
+  reste prioritaire pendant la « Durée minimale de travail d'un onduleur » et sa
+  consigne monte progressivement (les autres onduleurs gardent la part
+  qu'il ne prend pas encore).
+- Décharge : un onduleur qui se met à décharger à côté d'un autre prend
+  désormais sa part progressivement, comme en charge. Les onduleurs déjà en
+  marche gardent leur consigne le temps qu'il démarre (10 à 20 s), au lieu
+  de perdre leur part d'un coup, ce qui faisait osciller le réseau. Même
+  chose quand un onduleur en remplace un autre ou s'arrête.
+- Le réglage « Transfert progressif entre onduleurs » (Paramètres ›
+  Répartition) s'exprime maintenant en pourcentage de la part du nouvel
+  onduleur (25 % par défaut : 250 W par pas pour une part de 1000 W, 50 W
+  pour une part de 200 W) et vaut pour la charge comme pour la décharge.
+  L'ancienne valeur en watts n'est pas reprise.
+- Menu ⋮ d'un onduleur en erreur 01 ou 02 : « Déblocage forcé (sans
+  test) », quand le test est impossible ou que l'onduleur est reparti.
+- Charge sur surplus solaire, correctif : avec un « Démarrage de la charge »
+  très bas (10 W) et un délai court (10 s), la régulation pouvait passer de
+  la décharge à la charge pendant de longues minutes la nuit. Le seuil est
+  désormais de 100 W d'export au minimum (et au moins 100 W sous l'objectif
+  au compteur du mode Autonome), le délai de confirmation de 15 s au
+  minimum ; les valeurs plus basses déjà enregistrées sont relevées.
+- Nouveau garde-fou « Charger seulement si les panneaux produisent »
+  (activé par défaut) : la charge sur surplus ne démarre que si les panneaux
+  déclarés (onduleurs pilotés, surveillés et onduleurs solaires) produisent
+  au moins 200 W (réglable, 150 W au minimum : le talon de consommation de la
+  maison). Sans onduleur avec panneaux déclaré, il ne s'applique pas. La
+  charge planifiée n'est pas concernée.
+- Expérimental, mode Autonome : « Charge optimisée », sur le principe du
+  tir à la corde. Avec au moins
+  deux onduleurs pilotés (et aucun onduleur surveillé), l'onduleur le moins
+  chargé charge et le plus chargé décharge en permanence d'une petite
+  puissance (50 W par défaut, de 0 à 50 W). La régulation ajuste une seule
+  consigne nette autour de l'objectif au compteur : un surplus va à
+  l'onduleur de charge, une consommation à l'onduleur de décharge, sans
+  seuil, sans délai et sans arrêt ni démarrage d'onduleur à chaque nuage.
+  Au-delà d'« Un onduleur de plus tous les… », d'autres onduleurs entrent
+  du côté qui travaille ; un onduleur qui vient de travailler dans l'autre
+  sens n'est repris qu'en dernier (durée minimale de travail). L'onduleur
+  d'en face ne passe du même côté que si les autres ne peuvent plus fournir
+  la puissance. Un onduleur qui atteint son niveau de batterie maximal
+  devient aussitôt l'onduleur de décharge (l'ancien onduleur de décharge peut
+  alors charger) et ne recharge qu'après être redescendu de 3 points. Le mode
+  ne démarre que sur un vrai surplus (pas pendant une décharge qu'il suffit
+  de baisser). La charge optimisée s'arrête après 2 minutes sans charge
+  nette (réglable de 30 s à 5 min ; la décharge standard reprend à la même
+  puissance) ou quand moins de
+  deux onduleurs peuvent charger et décharger. Contreparties : un peu
+  d'énergie passe en permanence d'une batterie à l'autre, et le tableau de
+  bord affiche une petite décharge pendant la charge. Désactivé par défaut.
+- Page Paramètres refaite : la liste des rubriques reste visible sur le
+  côté, une seule rubrique est affichée à la fois, la recherche porte sur
+  tous les réglages. Chaque réglage se lit comme une phrase, avec sa valeur
+  par défaut et « Rétablir » juste dessous ; les réglages fins sont repliés
+  dans chaque rubrique. Des illustrations animées montrent l'effet des
+  réglages sur vos propres onduleurs (charge optimisée et charge standard
+  comparées, répartition sur une journée, délestage de la charge planifiée,
+  triphasé…). La licence a sa propre rubrique.
+- La « Puissance souscrite » de votre abonnement (rubrique Abonnement et
+  tarifs) plafonne désormais les puissances prises au réseau : charge des
+  batteries, charge planifiée et, en triphasé, puissances par phase (le
+  tiers de l'abonnement). Par défaut, elles valent la puissance de
+  l'abonnement ; sans abonnement renseigné, 3 000 W par prudence. La
+  décharge totale n'en dépend pas (elle alimente la maison sans passer par
+  le compteur). Mise à jour : vos valeurs actuelles sont gardées ; si
+  l'abonnement n'est pas renseigné, un bandeau le demande sur le tableau de
+  bord.
+- Une seule adresse de Home Assistant : l'ancienne « adresse IP + port » est
+  reprise automatiquement dans l'adresse (par exemple
+  http://192.168.1.50:8123).
+- Shelly Pro 3EM en profil triphasé : il est maintenant lu aussi en réseau
+  monophasé (auparavant, seul le profil monophasé l'était). Le bouton
+  « Tester et choisir » (Paramètres › Connexion) affiche la puissance de
+  chaque phase, mise à jour toutes les 2 secondes, et propose la bonne :
+  choisissez la phase 1, 2 ou 3, ou la somme des trois.
+- Lissage renforcé en cas d'oscillation : nouvel interrupteur (Paramètres ›
+  Rythme et stabilité). Il est coupé à la mise à jour s'il était sans effet.
+- Nouvelle rubrique « Régler avec une IA » : un texte prêt à copier pour
+  ChatGPT, Claude, Le Chat ou Gemini (fonctionnement du logiciel, votre
+  installation, vos réglages) et le résumé de vos journaux à joindre (une
+  ligne par minute et les événements, sans adresse ni identifiant), pour vous
+  aider à régler l'installation. Rien n'est envoyé : c'est vous qui collez.
+- Plages des réglages revues (par exemple 100 à 6 000 W pour la hausse et la
+  baisse de la décharge) : une valeur enregistrée hors de la nouvelle plage
+  est ramenée à la borne la plus proche.
+
 ## 3.7
 
 - Automatisations réunies : la page Automatisations n'a plus qu'un seul
