@@ -2,6 +2,224 @@
 
 Nouveautés détaillées de chaque version : <https://ted-energy.fr/evolutions>
 
+## 3.7.2
+
+- Automatisations : les variables du cloud Zendure ont leur propre catégorie
+  dans le choix des valeurs (« Une entité du cloud Zendure », rangées par
+  appareil : onduleur puis ses batteries), à côté de « Une entité de Home
+  Assistant ». Même chose pour la cible d'un effet « valeur imposée ». Un
+  futur cloud d'une autre marque aura automatiquement sa catégorie.
+- Cloud Zendure : les réglages modifiables de l'onduleur deviennent des listes
+  de choix et des interrupteurs, avec les mêmes noms et options que
+  l'intégration Zendure de Home Assistant : contournement vers le réseau
+  (`select.cloud_zendure_<x>_grid_reverse` : disabled / allow / forbidden),
+  sortie hors réseau, passage direct, chauffage automatique, ventilateur,
+  signal sonore, voyant… Une automatisation peut leur imposer une valeur et
+  la remettre à la fin.
+- Cloud Zendure : nouvelle variable « Prochaine calibration »
+  (`sensor.cloud_zendure_<x>_next_calibration`), calculée comme le faisait
+  l'intégration Home Assistant (30 jours après la fin d'une calibration ou
+  après une charge à 100 %) et gardée après un redémarrage. Le modèle
+  « Auto-calibration : batterie pleine avant » la trouve tout seul.
+- Puissance réelle des batteries : la limite repérée est toujours une
+  puissance de la batterie, jamais une consigne. Le solaire des panneaux de
+  l'onduleur entre aussi dans la batterie : la consigne possible est
+  recalculée à chaque mesure avec le solaire du moment et remonte aussitôt
+  quand un nuage fait baisser le solaire (avant : 600 W par minute). La page
+  Onduleurs affiche la limite de la batterie et la consigne qui s'en déduit.
+- Erreur 01 et batterie limitée ne se confondent plus : l'écart de la
+  puissance réelle des batteries se mesure comme celui de l'erreur 01, côté
+  réseau (prise au réseau en charge, sortie AC en décharge), donc les pertes de
+  conversion ne passent plus pour une limite. Sans ces mesures, la comparaison
+  se fait sur la batterie avec une part de pertes (8 %) ajoutée aux deux
+  écarts. Un onduleur qui applique sa consigne à l'écart de l'erreur 01 près
+  n'est jamais en erreur 01.
+  Les Paramètres préviennent quand l'écart toléré ou la durée de la puissance
+  réelle des batteries n'est pas plus petit que celui de l'erreur 01 (à
+  corriger d'un côté ou de l'autre). Nouveaux défauts : 50 W et 30 s.
+- Nouveau (expérimental) : « Cloud onduleur » (Paramètres › Système). TED se
+  relie directement au cloud Zendure avec le jeton de l'application Zendure,
+  sans passer par Home Assistant : liste des appareils du compte, choix des
+  appareils à intégrer, puis déclaration habituelle dans la page Onduleurs
+  (surveillé ou piloté). Chaque champ d'une fiche accepte une entité de
+  Home Assistant ou une variable du cloud (ex.
+  `number.cloud_zendure_j1_output_limit`) ; la loupe indique la source et
+  peut filtrer Home Assistant / Cloud Zendure ; le remplissage automatique
+  Zendure propose les deux sources. Les deux connexions coexistent. Mesures
+  reçues en continu (liaison MQTT sortante, aucun port à ouvrir) ; tableau
+  des variables en temps réel avec l'âge de chaque valeur, le rythme de ses
+  mises à jour et le délai de confirmation des consignes ; relecture complète
+  réglable. Mêmes consignes que par Home Assistant (limites de sortie et
+  d'entrée, mode AC, niveaux de batterie). Autres marques à l'étude (EcoFlow,
+  Anker SOLIX, Marstek…). Fonction incluse dans la licence (droit
+  « cloud Zendure », actif par défaut). Batteries détaillées (niveau,
+  puissance, état, tensions, delta, température, intensité, santé),
+  rattachées à leur onduleur comme avec Home Assistant (page Diagnostic).
+  Le cloud Zendure n'envoie les mesures qu'à une seule connexion par compte :
+  TED ou l'intégration Zendure de Home Assistant (en cas de conflit, TED le
+  signale et fait une pause de 10 minutes pour ne pas la perturber).
+- Correction : au redémarrage de TED (ou de Home Assistant), les onduleurs
+  n'apparaissent plus en « Auto-calibration » le temps que leurs mesures
+  arrivent. Un état encore inconnu (« unavailable ») n'est plus pris pour une
+  calibration : ni mise en veille forcée, ni écran rouge pendant une minute.
+  Pendant les 2 premières minutes, l'onduleur est affiché « En attente des
+  premières mesures » (bandeau sur le tableau de bord) et la régulation le
+  reprend dès que ses mesures arrivent. Après une vraie auto-calibration,
+  l'onduleur repart en 10 secondes au plus (au lieu d'une minute).
+- Diagnostic : nouvelle rubrique « Cloud Zendure » (une par cloud configuré) :
+  état de la liaison, messages reçus minute par minute sur la dernière heure,
+  régularité des relevés de chaque appareil (écart habituel et plus long écart
+  entre deux relevés, âge et rythme de chaque mesure), fiches qui utilisent ses
+  variables, consignes envoyées avec leur résultat (confirmée et en combien de
+  temps, sans réponse, non envoyée), événements de la liaison.
+- Diagnostic › Batteries : « Détecter dans le cloud Zendure » en plus de
+  « Détecter dans Home Assistant » (le bouton de la source utilisée par la
+  fiche de l'onduleur vient en premier ; un onduleur déclaré avec Home
+  Assistant est retrouvé dans le cloud par son nom). Capacité des batteries
+  du cloud remplie, nombre de batteries annoncé lu aussi dans le cloud.
+- Nouveau (expérimental) : serveur MQTT intégré à TED, dans la même rubrique.
+  Les appareils Zendure qui proposent « Contrôle MQTT » dans l'application
+  Zendure s'y connectent directement sur le réseau local, sans Internet ni
+  serveur Mosquitto à installer : un interrupteur, puis TED affiche l'adresse
+  IP, le port (1885 par défaut), l'utilisateur et le mot de passe à saisir
+  dans l'application, avec un test de connexion et la liste des appareils
+  connectés. Mêmes variables que le cloud : les fiches d'onduleur ne changent
+  pas, les consignes partent en local dès que l'appareil y est connecté.
+  Mise en service guidée en 5 étapes vérifiées : serveur démarré, port ouvert
+  (application Home Assistant : bouton « Ouvrir le port et redémarrer TED »,
+  port libre proposé ; Docker / Synology : commande exacte), test de connexion
+  par l'adresse et le port que l'appareil utilisera, valeurs à saisir dans
+  l'application Zendure, appareil connecté.
+- Lectures dans Home Assistant beaucoup plus légères : avant, chaque valeur
+  était lue par sa propre requête, et souvent plusieurs fois par cycle
+  (environ 240 requêtes par cycle avec 8 onduleurs). Désormais une liaison
+  en temps réel (API WebSocket de Home Assistant) : Home Assistant envoie
+  lui-même chaque changement des seules entités utilisées par la
+  régulation, sans aucune requête de lecture. Si la liaison est coupée,
+  toutes les valeurs d'un cycle sont lues en une seule requête (lecture
+  groupée). Les consignes restent envoyées et vérifiées une par une. La
+  régulation réagit plus vite (le cycle n'attend plus ces lectures).
+  Réglage avancé « Liaison en temps réel avec Home Assistant » (Paramètres
+  › Connexion, activé par défaut) ; état de la liaison et nombre de
+  requêtes : page Diagnostic › Liaison avec Home Assistant.
+- Régulation plus rapide : la configuration n'est plus relue sur le disque
+  environ 200 fois par cycle (calcul d'un cycle environ 3 fois plus court),
+  et le compteur Shelly Pro 3EM est lu par une demande courte (seulement la
+  mesure : ~40 ms au lieu de ~200 ms). La lecture complète du Shelly reste
+  faite au démarrage, toutes les 10 minutes et au moindre souci : le
+  fonctionnement ne change pas.
+- Nouveau journal des onduleurs (un fichier par jour, onduleurs.AAAAMMJJ.txt,
+  même durée de conservation que le journal) : chaque consigne écrite dans
+  Home Assistant avec la valeur relue juste après, chaque changement de mode,
+  et chaque changement d'état d'un onduleur (charge, décharge, veille,
+  défaut…) avec sa raison et ses mesures ; un relevé de tous les onduleurs
+  toutes les 10 minutes.
+- Page Diagnostic › Journaux : visionneuse du journal des onduleurs (par jour,
+  par onduleur, par sorte de ligne, recherche ; échecs en rouge) et
+  téléchargement des journaux de chaque jour et d'un dossier de diagnostic
+  (journaux + configuration, jetons masqués) à envoyer au support. Utile en
+  particulier avec l'application Home Assistant, dont les fichiers ne sont
+  pas accessibles directement.
+- Erreur 01 (consigne non appliquée) : beaucoup moins de fausses détections
+  sur les onduleurs lents à démarrer. Délai avant l'erreur 01 de 60 s (30 s
+  au minimum) et écart toléré de 100 W (50 W au minimum) : ces deux valeurs
+  sont remises à leur nouvelle valeur par défaut lors de la mise à jour.
+  Intervalle entre deux tests de déblocage de 5 min à 1 h (10 min par
+  défaut), puissance du test de 40 à 100 W (50 W par défaut).
+- Fiche de l'onduleur : nouvelle case « Inhibition de l'erreur 01/02 »
+  (décochée par défaut) pour un onduleur lent à démarrer ou qui se met en
+  veille de lui-même ; une erreur 01 en cours est levée dès l'enregistrement.
+- Charge optimisée : « Durée sans charge avant l'arrêt » de 1 à 10 min,
+  5 min par défaut (de 30 s à 5 min et 2 min avant) ; puissance des deux
+  onduleurs régulants de 30 à 100 W, 100 W par défaut (de 0 à 50 W avant) :
+  un onduleur lent à démarrer se réveille plus vite.
+- Onduleurs lents à démarrer : le temps de démarrage de chaque onduleur
+  (consigne envoyée à un onduleur au repos -> consigne vraiment prise) est
+  mesuré en charge et en décharge et appris (100 derniers démarrages). Pendant
+  un démarrage, il reçoit une consigne de réveil fixe et la régulation
+  l'attend ; il reçoit sa part une fois réveillé. Carte de l'onduleur : « En
+  démarrage depuis X s ».
+- Réveil des onduleurs : nouveau réglage « Consigne de réveil d'un onduleur »
+  (Paramètres › Répartition entre les onduleurs, 50 à 200 W, 50 W par
+  défaut). Un onduleur qui se met à charger ou à décharger reçoit d'abord
+  cette petite consigne, et les onduleurs déjà actifs prennent tout le reste,
+  dans la limite de leur puissance maximale (exemple : 1 000 W à décharger,
+  950 W pour l'onduleur qui travaille, 50 W pour celui qui se réveille). Ce
+  qu'ils ne peuvent pas prendre va à l'onduleur qui se réveille : il démarre
+  peut-être directement à cette puissance. Une fois réveillé (la moitié de sa
+  consigne de réveil prise), il reçoit sa part par le « Transfert progressif
+  entre onduleurs ». Avant, une part entière (« Puissance par onduleur
+  actif ») lui était réservée et n'allait à personne : un creux de 600 W le
+  15/10 à 22:22.
+- Décharge en mode Autonome : un onduleur reste toujours actif, au moins à la
+  consigne de réveil. Quand la consommation chute d'un coup, la décharge
+  baisse aussitôt mais n'est plus coupée : elle repart sans attendre qu'un
+  onduleur redémarre (le 15/10 à 22:22, tout s'était arrêté, 25 s pour
+  s'arrêter puis 40 s pour repartir, 500 à 600 W achetés). La décharge
+  s'arrête toujours par la charge (Start charge), la veille ou les batteries
+  au minimum.
+- Consigne en cours, correctif : la mesure d'un onduleur dans Home Assistant
+  peut être en retard de plusieurs secondes. La part pas encore appliquée
+  n'est plus déduite deux fois : elle ne dépasse jamais ce que le compteur
+  n'en a pas encore montré, d'un cycle au suivant (le 15/10 à 22:22:16,
+  974 W comptés deux fois avaient mis la consigne à 0).
+- Erreur 01 aussi en charge, et pour un démarrage trop long. Délai de chaque
+  onduleur : le plus long entre le réglage « Délai avant l'erreur 01 », le
+  temps de réaction de sa fiche et la moyenne de ses démarrages + 5 %.
+- La consigne en cours ne fait plus partir la régulation à contresens (plus
+  de décharge pendant que le compteur exporte, ni l'inverse).
+- Le protocole de démarrage s'applique à tous les ordres : décharge et
+  charge classiques, mode Assisté, charge planifiée, charge optimisée,
+  onduleurs en cluster et pendant un contournement solaire ; la charge
+  classique ne part plus non plus à contresens à cause d'une consigne en
+  cours.
+- Nouvelle page « Diagnostic », avec une barre de rubriques :
+  « Vue d'ensemble » montre chaque onduleur piloté et ses batteries empilées
+  (niveau, puissance, température, tension, intensité, écart de tension entre
+  cellules) ; « Temps de démarrage » montre le démarrage habituel de chaque
+  onduleur en charge et en décharge et le délai avant l'erreur 01 appliqué.
+  Les 100 derniers démarrages de chaque onduleur sont gardés ; un bouton
+  « Réinitialiser toutes les mesures » repart de zéro (utile quand les
+  onduleurs deviennent plus rapides). Les mesures d'un onduleur supprimé sont
+  effacées avec lui.
+- Batteries des onduleurs : trouvées automatiquement pour Zendure (AB1000S,
+  AB2000X, AB3000… rattachées à leur Hyper ou SolarFlow), cherchées parmi les
+  appareils rattachés à l'onduleur pour les autres marques, ou déclarées à la
+  main (toutes les entités facultatives). Alerte quand l'écart de tension
+  entre cellules dépasse 0,20 V (réglable, Paramètres › Surveillance), avec
+  une notification par jour. Information seulement : la régulation n'en
+  dépend pas.
+- Barre du haut sur deux lignes : la marque et les états, puis tous les
+  onglets ; ceux qui ne tiennent pas passent dans « Plus ».
+- Onduleur tout juste débloqué : la page Onduleurs affiche « Prioritaire
+  après déblocage (erreur 01) » avec l'heure de fin de la priorité (elle
+  était invisible).
+- Batteries presque pleines : nouveau réglage « Marge de redémarrage de la
+  charge » (Paramètres › Batteries et puissances maximales, 2 points par
+  défaut, de 0 à 10). Une batterie à moins de cette marge de son niveau
+  maximal ne démarre plus de charge (sur surplus, optimisée ou planifiée) :
+  près du maximum, elle ne prend que quelques dizaines de watts après un
+  long démarrage. Une charge déjà commencée continue jusqu'au maximum ; un
+  cluster suit la moyenne de ses batteries ; un niveau imposé par une
+  automatisation (calibration) est visé sans marge. 0 = marge générale
+  désactivée (la charge redémarre dès le premier point sous le maximum).
+- Fiche de l'onduleur piloté : nouvelle rubrique « Redémarrage de la charge
+  (batterie presque pleine) » avec sa propre marge, de 0 à 10 points (0 par
+  défaut = marge générale). Renseignée, elle remplace la marge générale pour
+  cet onduleur : utile quand les marques diffèrent (environ 2 points chez
+  Zendure, jusqu'à 5 pour d'autres).
+- Tableau de bord, bilan du jour : le « Pic de consommation » indique
+  l'heure et la minute où il a été atteint (« atteint à 18h42 ») au lieu
+  du nombre d'heures mesurées.
+- Automatisations : chaque condition et chaque sous-groupe a une poignée.
+  Glissez-la pour déplacer la condition (dans un autre groupe, en tête d'un
+  sous-groupe, à la fin d'un groupe), ou cliquez dessus : monter,
+  descendre, mettre dans un nouveau sous-groupe, regrouper avec la
+  condition suivante, sortir du groupe, déplacer dans un autre groupe,
+  dissoudre un sous-groupe. Un sous-groupe vidé par un déplacement
+  disparaît ; la profondeur maximale (5 niveaux de sous-groupes) est
+  respectée. Rien n'est appliqué avant « Enregistrer ».
+
 ## 3.7.1
 
 - Onduleurs hybrides de toutes marques : la fiche commence par la marque et

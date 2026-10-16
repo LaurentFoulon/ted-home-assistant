@@ -62,6 +62,16 @@ entreprise (VPN), administrées depuis une console, sans Internet. Donnez-lui un
 port seulement si vous l'utilisez (dans TED : Paramètres → Console
 d'entreprise), et ne l'ouvrez jamais vers Internet.
 
+Le port **1885/tcp** (vide par défaut) sert au **serveur MQTT intégré** de TED
+(expérimental) : les onduleurs Zendure qui proposent « Contrôle MQTT » dans
+l'application Zendure s'y connectent directement, sur votre réseau local, sans
+serveur Mosquitto à installer. Saisissez 1885 dans ce champ seulement si vous
+l'utilisez (dans TED : Paramètres → Cloud onduleur → Serveur MQTT intégré, qui
+affiche l'adresse, le port, l'utilisateur et le mot de passe à saisir dans
+l'application Zendure). TED peut aussi l'ouvrir lui-même (bouton « Ouvrir le
+port et redémarrer TED », étape 2 de la mise en service). Ne l'ouvrez jamais
+vers Internet.
+
 ## Vos données
 
 Réglages, onduleurs, historique, licence et journaux sont enregistrés dans le
