@@ -72,6 +72,15 @@ l'application Zendure). TED peut aussi l'ouvrir lui-même (bouton « Ouvrir le
 port et redémarrer TED », étape 2 de la mise en service). Ne l'ouvrez jamais
 vers Internet.
 
+## Valeurs de TED dans Home Assistant
+
+TED peut publier ses valeurs (appareils du cloud onduleur, régulation) dans
+Home Assistant, en lecture seule : Paramètres → Valeurs pour Home Assistant.
+Avec l'application **Mosquitto broker** installée, l'adresse et les
+identifiants du serveur MQTT sont fournis automatiquement par Home Assistant
+(rien à saisir) et les entités apparaissent d'elles-mêmes dans Paramètres →
+Appareils et services → MQTT. Mode d'emploi complet : page Aide de TED.
+
 ## Vos données
 
 Réglages, onduleurs, historique, licence et journaux sont enregistrés dans le

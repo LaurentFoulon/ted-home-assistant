@@ -3,7 +3,7 @@
 # Home Assistant télécharge l'image Docker de TED (code compilé, Intel/AMD et
 # ARM64) : ni code ni Dockerfile ici. version = étiquette de l'image.
 name: TED Energy Controller
-version: "3.7.2"
+version: "3.7.3"
 image: "tedenergy/ted"
 slug: ted
 description: >-
@@ -19,6 +19,10 @@ boot: auto
 homeassistant_api: true
 # Lecture du port réseau choisi par l'utilisateur (page Application mobile de TED).
 hassio_api: true
+# Serveur MQTT de Home Assistant (application Mosquitto), s'il existe : adresse et
+# identifiants fournis automatiquement pour publier les valeurs de TED (3.7.3).
+services:
+  - mqtt:want
 # Interface dans la barre latérale de Home Assistant.
 ingress: true
 ingress_port: 8099

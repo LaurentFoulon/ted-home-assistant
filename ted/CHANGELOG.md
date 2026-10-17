@@ -2,6 +2,78 @@
 
 Nouveautés détaillées de chaque version : <https://ted-energy.fr/evolutions>
 
+## 3.7.3
+
+- Tableau de bord : le flux d'énergie en direct a deux vues, « Maison » (par
+  défaut, maison animée : maison, panneaux, réseau, batteries, et selon vos
+  équipements garage et voitures, pompe à chaleur, piscine) et « Blocs »
+  (l'affichage d'avant, avec les équipements reliés au bloc Maison). Le choix
+  est mémorisé dans le navigateur.
+- Équipements : nouveaux types (ballon d'eau chaude, pompe à chaleur,
+  piscine, électroménager, chauffage). Pour chaque équipement : « Afficher sur
+  le flux d'énergie », « Inclure dans les rapports PDF » (cochés par défaut),
+  seuil d'affichage sur la maison animée (en dessous, il n'apparaît pas :
+  congélateur au repos…) et « Déjà compté dans un autre équipement ».
+- Borne de recharge : entités facultatives « voiture branchée » et « niveau de
+  la voiture », borne bidirectionnelle (la voiture peut alimenter la maison,
+  affichage seulement). 1 ou 2 bornes : une voiture dessinée par borne ; 3 ou
+  plus : une station qui les réunit, détail de chaque borne au clic.
+- Bilan des équipements (page Équipements et rapports PDF) : énergie, part de la
+  maison, origine estimée (solaire, batteries, voiture, réseau) minute par
+  minute, coût du réseau au prix de chaque période, durée de marche, pic,
+  recharges des véhicules et reste de la maison non identifié.
+- Flux d'énergie, vue « Maison » : la maison est désormais en 3D, comme une
+  maquette d'architecte éclairée en vrai (soleil selon l'heure et la saison,
+  ombres, nuit avec fenêtres et lampadaire allumés). Chaque liaison est une
+  traînée lumineuse continue, la puissance de chaque objet est affichée à côté
+  de lui, et on peut faire tourner la vue en la faisant glisser. Pompe à
+  chaleur, ballon d'eau chaude et piscine n'apparaissent que s'ils sont
+  déclarés ; l'électroménager, le chauffage et les prises sont listés sous
+  « Maison ». L'ancienne maison animée en 2D est retirée. Sans 3D sur
+  l'appareil (navigateur ancien, accélération graphique coupée), la vue
+  « Blocs » s'affiche automatiquement. La bibliothèque 3D (three.js, licence
+  MIT) est fournie avec TED : rien n'est chargé depuis Internet.
+- Un équipement peut additionner plusieurs entités de puissance (groupe de
+  radiateurs, piscine : pompe de filtration + chauffage de l'eau…).
+- Borne de recharge : capacité de la batterie de la voiture et niveau visé
+  (facultatifs) ; avec le niveau de la voiture, la vue 3D éclaire sa batterie
+  dans le plancher et affiche le temps de recharge restant estimé
+  (variable d'automatisation equipment.<clé>.charge_eta_min).
+- Application Android : la borne de recharge s'affiche sur l'accueil (garage et
+  voiture), sans mise à jour de l'application.
+- Automatisations et notifications : chaque règle s'ouvre dans sa propre
+  fenêtre, et « Enregistrer » n'enregistre que celle-là. Une automatisation
+  devenue invalide (entité disparue, onduleur supprimé…) n'empêche plus d'en
+  corriger une autre (« Certaines automatisations sont incomplètes »).
+  Fermer la fenêtre sans enregistrer demande confirmation ; l'ordre (flèches
+  ↑ ↓) et la suppression sont enregistrés tout de suite.
+- Cloud Zendure : la « prochaine calibration » n'est plus « indisponible »
+  après le passage de l'intégration Zendure de Home Assistant au cloud. La date
+  qu'affichait l'intégration est reprise de l'historique de Home Assistant
+  (10 derniers jours), et une batterie pleine fixe la date à maintenant
+  + 30 jours. Les automatisations de calibration fonctionnent de nouveau.
+- Paramètres › Cloud onduleur : la page ne saute plus pendant l'actualisation
+  des valeurs (mise à jour en place, volets ouverts conservés).
+- Valeurs de TED dans Home Assistant (lecture seule) : avec le cloud Zendure,
+  l'intégration Zendure de Home Assistant ne peut plus tourner en même temps
+  (une seule connexion par compte). TED rend donc toutes ses valeurs à Home
+  Assistant : celles des appareils du cloud (niveaux, puissances, batteries,
+  consignes, prochaine calibration…) et celles de la régulation (mode,
+  consignes, compteur, onduleurs, équipements). Home Assistant ne peut rien
+  modifier.
+  - Publication MQTT (Paramètres › Valeurs pour Home Assistant) : TED se
+    connecte au serveur MQTT de Home Assistant (application Mosquitto broker,
+    trouvée automatiquement dans l'application Home Assistant de TED) ; les
+    entités apparaissent toutes seules, rangées par appareil, avec les mêmes
+    noms que l'intégration Zendure (sensor.b1_electric_level…) pour que les
+    scripts et scènes existants remarchent sans retouche ; valeurs de la
+    régulation : sensor.ted_grid_power_w, binary_sensor.ted_tarif_off_peak…
+  - API locale, sans identifiant, depuis le réseau local seulement :
+    /api/variables (toutes les valeurs) et /api/variables/<identifiant>.
+  - Aide › « Utiliser les valeurs de TED dans Home Assistant » : mode
+    d'emploi, adresses, liste des valeurs en direct et configuration YAML
+    (intégration rest) générée en cochant les valeurs voulues.
+
 ## 3.7.2
 
 - Automatisations : les variables du cloud Zendure ont leur propre catégorie
