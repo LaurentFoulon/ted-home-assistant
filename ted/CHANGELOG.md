@@ -2,6 +2,98 @@
 
 Nouveautés détaillées de chaque version : <https://ted-energy.fr/evolutions>
 
+## 3.7.4
+
+- Automatisations : dossiers. Bouton « Nouveau dossier » ; pour ranger une
+  automatisation, maintenez-la (ou sa poignée) puis glissez-la sur un dossier,
+  ou choisissez son dossier dans sa fenêtre. Un dossier se replie, se renomme,
+  se déplace ; le supprimer remet ses automatisations hors dossier (aucune
+  n'est supprimée). Les flèches ↑ ↓ disparaissent : l'ordre de la liste ne
+  sert plus qu'à l'affichage.
+- Automatisations concurrentes : quand deux automatisations imposent une
+  valeur différente à la même cible (réglage, SOC minimum ou maximum d'un
+  onduleur, entité de Home Assistant), un avertissement s'affiche sur chacune
+  avec un lien vers l'autre, et vous choisissez leur priorité (1 = celle qui
+  l'emporte quand elles sont actives en même temps ; 1, 2, 3… s'il y en a
+  plus). La priorité disparaît d'elle-même quand elles ne sont plus
+  concurrentes. Les configurations existantes gardent leur comportement
+  (ordre de la liste) jusqu'au prochain enregistrement, qui fixe les priorités.
+- Automatisations : nouvelle case « Notification téléphone » : chaque début et
+  fin est aussi envoyé à l'application Android (avec la case du journal des
+  notifications).
+- Licence réduite (fin d'une période ACCESS, par exemple) : les onduleurs
+  pilotés et les automatisations au-delà de la nouvelle limite sont désormais
+  désactivés pour de bon (les derniers de la liste), au lieu d'être ignorés en
+  silence. Un bandeau, l'historique des réglages et une notification envoyée
+  aussi au téléphone disent lesquels ; à vous de choisir ceux à garder ou
+  d'augmenter la licence. L'avertissement « fin de période » annonce à
+  l'avance combien seront désactivés. Toutes les notifications de la licence
+  vont désormais aussi au téléphone.
+- Prix de l'abonnement : nouvelle rubrique « Abonnement » dans Paramètres ›
+  Abonnement et tarifs, avec le prix TTC par mois ou par jour (bascule
+  Mois / Jour). Il est ajouté chaque jour au coût du réseau du bilan du
+  tableau de bord et des rapports PDF (un prix mensuel est réparti sur les
+  jours du mois), et la facture nette en tient compte. Non renseigné (0 par
+  défaut), il n'est pas compté.
+- Le logiciel s'appelle désormais **TedEnergy** (anciennement TED Energy
+  Controller) : nom de l'application, barre du haut et titre de l'interface,
+  entrée de la barre latérale de Home Assistant, rapports PDF. Rien ne change
+  pour l'installation : même application, mêmes réglages, mêmes entités.
+- Nouvelle rubrique Paramètres › Connexion MQTT (expérimental) : le serveur MQTT
+  intégré y a désormais sa place (onglet « Serveur intégré »), avec la liste des
+  appareils connectés et un journal des derniers messages reçus.
+- Appareils au format MQTT de Home Assistant (Zendure en « Contrôle MQTT » sur
+  les modèles récents, OpenDTU, Shelly, Tasmota, ESPHome…) : leurs valeurs sont
+  regroupées par appareil (une ligne par appareil, au lieu d'un « appareil » par
+  valeur), lues et utilisables dans les fiches d'onduleur et les automatisations
+  (variables mqtt_<appareil>_…), consignes comprises. Correction : un SolarFlow
+  2400 AC+ apparaissait comme une trentaine d'appareils « Modèle non reconnu »
+  dans Cloud onduleur, sans aucune valeur lue.
+- Appareil Zendure présent à la fois dans le cloud et en local : relié
+  automatiquement (même numéro). Ses valeurs alimentent les variables du cloud
+  (fiches inchangées) et ses consignes partent en local tant qu'il est connecté,
+  par le cloud sinon. Liaison retirable (« Séparer »).
+- Vos propres appareils : créez un appareil, rangez-y les valeurs de votre choix,
+  regroupez deux appareils, ignorez ceux qui ne servent pas.
+- Valeurs d'un appareil (cloud ou MQTT) dans une fenêtre : recherche, filtre,
+  valeurs en direct, identifiant à copier, fiches qui les utilisent. Cloud
+  onduleur : liste compacte, familles repliables, recherche.
+- Docker : le port MQTT (1885) est publié automatiquement par les scripts
+  d'installation et de déploiement, avec un port libre proposé s'il est pris.
+- « Cloud onduleur » devient **Connecteurs d'appareils** (Paramètres › Système) :
+  l'entrée se déplie dans la barre latérale avec une page par marque, qui dit si
+  la liaison passe par le **cloud du fabricant** ou par l'**API locale
+  officielle** de l'appareil (sur votre réseau, sans Internet), ou pourquoi la
+  marque n'est pas reliée et comment la relier autrement.
+- Cloud Zendure : n'est plus expérimental (testé et validé sur de vrais appareils).
+- Nouveau (expérimental) : **Zendure par l'API locale officielle** (SolarFlow
+  800, 800 Plus, 800 Pro, 1600 AC+, 2400 AC, 2400 AC+, 2400 Pro), sans Internet ni
+  compte : la connexion la plus rapide (interrogation toutes les 2 s), en plus du
+  cloud. La page Zendure aide à choisir (API locale ou MQTT local d'abord, cloud
+  pour les autres modèles) ; chaque connexion a ses propres variables
+  (`local_zendure_…`, `mqtt_…`, `cloud_zendure_…`) et une fiche passe de l'une à
+  l'autre en choisissant l'appareil dans son remplissage automatique. Un appareil
+  du cloud qui a l'API locale s'y ajoute en un clic ; la page signale les fiches
+  qui lisent encore par le cloud un appareil disponible en local.
+- Configuration des onduleurs jointe à la validation de licence : type de
+  connexion de chaque onduleur (API locale, MQTT, cloud ou Home Assistant), sans
+  aucun nom ni adresse, pour la page Compatibilité du site.
+- Nouveau (expérimental) : **cloud EcoFlow**, par la plateforme développeurs
+  officielle (clé d'accès et clé secrète) : mesures en continu, consigne de sortie
+  du PowerStream (pilotable), niveaux et réglages des DELTA 2 / RIVER 2 et STREAM.
+- Nouveau (expérimental) : **Indevolt par l'API locale officielle** (la même que
+  l'intégration Indevolt de Home Assistant), sans Internet ni Home Assistant :
+  appareil ajouté par son adresse IP, mesures toutes les 5 s, charge et décharge
+  commandées en temps réel, batteries détaillées.
+- Fiche d'onduleur : en choisissant un appareil EcoFlow ou Indevolt d'un
+  connecteur, ses champs sont remplis automatiquement (consignes, niveau,
+  puissances, limites).
+- Marstek et Anker SOLIX étudiés, non reliés pour l'instant : le cloud Marstek
+  n'est pas ouvert et son API locale ne peut être interrogée assez souvent ; le
+  cloud Anker ne donne qu'une mesure par minute. Leur page explique comment les
+  relier autrement (MQTT, Home Assistant). Batteries Marstek publiées par la
+  passerelle hm2mqtt : valeurs bien nommées dans Connexion MQTT.
+
 ## 3.7.3
 
 - Tableau de bord : le flux d'énergie en direct a deux vues, « Maison » (par

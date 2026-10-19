@@ -1,4 +1,4 @@
-# TED Energy Controller
+# TedEnergy
 
 HEMS multi-marques pour Home Assistant : TED pilote ensemble tous vos onduleurs
 et batteries solaires, quelle que soit leur marque, comme une seule batterie. Il

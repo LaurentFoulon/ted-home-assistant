@@ -1,6 +1,6 @@
-# TED Energy Controller
+# TedEnergy
 
-TED Energy Controller est un HEMS multi-marques pour Home Assistant : il pilote
+TedEnergy est un HEMS multi-marques pour Home Assistant : il pilote
 ensemble vos onduleurs et batteries solaires, quelle que soit leur marque, à
 partir des mesures de votre compteur d'électricité. Il charge les batteries avec
 le surplus solaire et les décharge quand la maison consomme, pour acheter le
@@ -64,17 +64,29 @@ d'entreprise), et ne l'ouvrez jamais vers Internet.
 
 Le port **1885/tcp** (vide par défaut) sert au **serveur MQTT intégré** de TED
 (expérimental) : les onduleurs Zendure qui proposent « Contrôle MQTT » dans
-l'application Zendure s'y connectent directement, sur votre réseau local, sans
-serveur Mosquitto à installer. Saisissez 1885 dans ce champ seulement si vous
-l'utilisez (dans TED : Paramètres → Cloud onduleur → Serveur MQTT intégré, qui
+l'application Zendure, et les appareils qui publient au format MQTT de Home
+Assistant (OpenDTU, Shelly, Tasmota…), s'y connectent directement, sur votre
+réseau local, sans serveur Mosquitto à installer. Saisissez 1885 dans ce champ
+seulement si vous l'utilisez (dans TED : Paramètres → Connexion MQTT, qui
 affiche l'adresse, le port, l'utilisateur et le mot de passe à saisir dans
 l'application Zendure). TED peut aussi l'ouvrir lui-même (bouton « Ouvrir le
 port et redémarrer TED », étape 2 de la mise en service). Ne l'ouvrez jamais
 vers Internet.
 
+## Connecteurs d'appareils
+
+Paramètres → Système → Connecteurs d'appareils relie TED directement à vos
+onduleurs, sans passer par une intégration de Home Assistant : par l'API
+locale officielle de l'appareil (SolarFlow récents de Zendure, Indevolt, sur
+votre réseau) ou par le cloud du fabricant (Zendure, EcoFlow). Préférez la
+connexion locale quand l'appareil la propose : plus rapide et sans Internet.
+Un appareil en API locale s'ajoute par son adresse IP (la recherche automatique
+sur le réseau peut ne pas aboutir depuis une application) ; réservez cette
+adresse dans votre box.
+
 ## Valeurs de TED dans Home Assistant
 
-TED peut publier ses valeurs (appareils du cloud onduleur, régulation) dans
+TED peut publier ses valeurs (appareils des connecteurs d'appareils, régulation) dans
 Home Assistant, en lecture seule : Paramètres → Valeurs pour Home Assistant.
 Avec l'application **Mosquitto broker** installée, l'adresse et les
 identifiants du serveur MQTT sont fournis automatiquement par Home Assistant
