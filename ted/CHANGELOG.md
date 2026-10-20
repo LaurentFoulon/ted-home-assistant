@@ -2,6 +2,50 @@
 
 Nouveautés détaillées de chaque version : <https://ted-energy.fr/evolutions>
 
+## 3.7.5
+
+- Correction : Zendure relié en MQTT local (SolarFlow 2400 AC, 2400 AC+ et
+  autres modèles récents). Les textes publiés par l'appareil (« Output mode »,
+  « Input mode », « Allow backflow », état de calibration « idle », état
+  « standby », températures en kelvins) sont maintenant traduits comme les
+  valeurs du cloud. Avant : calibration vue « en cours » alors que l'appareil
+  était normal, changement de mode refusé (« Option inconnue ») donc aucune
+  charge possible, et date de prochaine calibration recalculée en continu.
+  Les batteries de l'appareil sont aussi lues en local, et les consignes de
+  puissance passent l'appareil en smartMode (pas d'écriture en mémoire flash à
+  chaque consigne, comme l'intégration Zendure).
+- Borne de recharge pilotée : nouvelle case « Piloter la recharge » dans la
+  fiche de la borne (page Équipements). Avec une entité de consigne de Home
+  Assistant (courant en A, ou puissance en W / kW) et, si possible, un
+  interrupteur marche / arrêt, TedEnergy décide quand et à quelle puissance la
+  voiture charge, selon des objectifs cochés dans la fiche : niveau de secours
+  (sous X %, charge tout de suite), prêt pour le départ (X % à une heure
+  donnée, aux heures avantageuses puis à toute heure si le temps manque),
+  heures avantageuses (périodes de l'abonnement ou plages fixes, jusqu'à X %)
+  et surplus solaire (jusqu'à X %, surplus minimal, délais de démarrage et
+  d'arrêt, voiture prioritaire ou non sur les batteries de la maison). Courant
+  minimal et maximal de la borne, délai entre deux changements et durée
+  minimale de marche / d'arrêt pour ménager le chargeur ; charge sur le réseau
+  limitée par la puissance souscrite. Menu ⋮ : « Charger maintenant » et
+  « Pause » jusqu'au débranchement. Tout se règle dans la fiche de la borne,
+  rien dans la page Paramètres.
+- Batteries de la maison : nouvelle case « Ne pas décharger les batteries de
+  la maison pour la voiture » (cochée par défaut, toutes les bornes, même
+  seulement mesurées) : quand la voiture charge (la nuit en heures creuses,
+  par exemple), sa puissance est retirée de la mesure vue par la régulation et
+  les batteries n'alimentent plus que la maison.
+- V2G (expérimental) : « Utiliser la voiture comme une batterie pour la
+  maison » crée un onduleur virtuel dans la page Onduleurs (réglé dans la fiche
+  de la borne, désactivable, ni surveillé, ni cluster, ni zone). Sa priorité de
+  décharge est basse : la voiture n'alimente la maison que lorsque les autres
+  batteries ne suffisent plus. Niveau minimal de la voiture d'au moins 30 %,
+  puissances minimale et maximale de restitution. Fonction non testée faute de
+  matériel.
+- Onduleurs : nouvelle « Priorité de décharge » dans la fiche (basse, moyenne
+  par défaut, élevée). Ordre : priorité solaire, élevée, moyenne, puis basse ;
+  une batterie en priorité basse n'est utilisée que si les autres ne suffisent
+  pas et ne prend que le reste.
+
 ## 3.7.4
 
 - Automatisations : dossiers. Bouton « Nouveau dossier » ; pour ranger une
