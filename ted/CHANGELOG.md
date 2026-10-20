@@ -2,6 +2,30 @@
 
 Nouveautés détaillées de chaque version : <https://ted-energy.fr/evolutions>
 
+## 3.7.6
+
+- Correction : deux onduleurs ne peuvent plus porter le même « Identifiant
+  interne ». Avant, une nouvelle fiche (ou un renommage) avec un identifiant
+  déjà pris remplaçait en silence l'onduleur existant, sa phase comprise : en
+  triphasé, une batterie « disparaissait » d'une phase à chaque ajout. Le test
+  et l'enregistrement refusent maintenant l'identifiant pris, en nommant
+  l'onduleur qui l'utilise.
+- Sélecteur de mode : une option laissée sur « automatique » qui ne correspond
+  à aucune option du sélecteur est refusée au test de la fiche (par exemple le
+  sélecteur « User work mode » des Marstek : manual / anti-feed / ai). En marche,
+  un sélecteur en échec est affiché sur l'onduleur (« Sélecteur ») et sur le
+  tableau de bord, avec les options disponibles ; nouvel essai toutes les
+  minutes au lieu de deux fois par cycle.
+- Nouvelle alerte « Consignes sans effet » (tableau de bord, notification,
+  téléphone) : en décharge Autonome, la consigne reste au maximum alors que le
+  compteur reste à l'objectif, ou elle monte sans que le compteur change. Les
+  onduleurs n'appliquent alors pas les consignes (sélecteur de mode, pilotage
+  désactivé dans l'onduleur, régulation propre du fabricant) : l'alerte liste
+  les onduleurs sans mesure de puissance et ceux dont le sélecteur échoue.
+- Marstek : le sélecteur de sens forcé (« Force mode » / « Forcible
+  charge/discharge ») est obligatoire dans la fiche ; prérequis « RS485 control
+  mode » rappelé, passerelles ESPHome mentionnées.
+
 ## 3.7.5
 
 - Correction : Zendure relié en MQTT local (SolarFlow 2400 AC, 2400 AC+ et
