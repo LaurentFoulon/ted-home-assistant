@@ -2,6 +2,59 @@
 
 Nouveautés détaillées de chaque version : <https://ted-energy.fr/evolutions>
 
+## 3.7.7
+
+- Corrigé : fausse erreur 01 « démarrage en charge non abouti » d'un onduleur
+  dont la batterie presque pleine chargeait déjà avec tout son solaire et ne
+  pouvait donc pas prendre de charge sur le réseau. La fin du démarrage applique
+  désormais les mêmes exemptions que le contrôle habituel (limite de la
+  batterie, batterie presque pleine) ; la charge solaire devient la limite de
+  la batterie, sans consigne réseau superflue. Une consigne inférieure à 25 W ne
+  lance plus de démarrage (il ne pouvait jamais aboutir).
+- Délai avant l'erreur 01 : 240 s par défaut au lieu de 60 s (moins de
+  fausses erreurs 01 sur les onduleurs lents). Une valeur déjà enregistrée dans
+  Paramètres est gardée.
+- Connecteur « Indevolt / IsyPower / Matter France » (Paramètres › Connecteurs
+  d'appareils) : même API locale chez les trois marques, nom et textes mis à
+  jour. « Rechercher sur le réseau » parcourt aussi le réseau local (port 8080,
+  appareil reconnu par son numéro de série) : il trouve désormais l'appareil
+  quand TedEnergy tourne dans Docker ou en application Home Assistant, où la
+  diffusion ne passait pas. L'ajout par adresse IP reste possible.
+- Nouveau : test de validation des onduleurs (Diagnostic › Test des
+  onduleurs). Toutes marques : lecture de chaque entité de la fiche (niveau,
+  mesures, consignes et valeurs qu'elles acceptent, sélecteur et ses options,
+  appareil Home Assistant commun), puis charge et décharge à faible puissance
+  (100 W par défaut, de 50 à 200 W) avec retours à 0 W. Délai large par étape
+  (180 s par défaut), l'onduleur testé est hors régulation pendant le test
+  (ni erreur 01 ni démarrage suivi), les autres continuent. Résultat gardé avec
+  sa date ; une fiche modifiée depuis redemande le test.
+- Un nouvel onduleur piloté est enregistré désactivé. À son activation, s'il
+  n'a jamais passé le test, TedEnergy propose de le lancer (« Non » l'active
+  tout de suite).
+- Sécurité : si Home Assistant refuse une consigne de puissance et que la
+  fiche a une option d'arrêt du sélecteur (ex. « stop »), l'onduleur est mis à
+  l'arrêt au lieu de rester dans le sens demandé avec la puissance gardée en
+  mémoire (une batterie a injecté 2,2 kW de cette façon). Le refus est affiché
+  en clair sur l'onduleur (ex. « n'accepte que 12 à 30 »), sans erreur 01.
+  Rien ne change pour une fiche sans option d'arrêt ni pour une consigne
+  simplement relue en retard.
+- Sécurité : un onduleur supprimé, passé en surveillé ou dont les entités de
+  commande changent est d'abord mis à l'arrêt (0 W), au lieu de garder sa
+  dernière consigne.
+- Test de la fiche : une consigne qui refuse 0 W, ou en % pour une fiche en W
+  (par exemple une limite de niveau de batterie « cutoff capacity »), est
+  refusée ; la plage acceptée par chaque consigne est affichée ; avertissements
+  si la puissance maximale dépasse ce que l'entité accepte, s'il manque
+  l'option d'arrêt du sélecteur, ou si une production solaire est renseignée
+  sur un modèle sans entrée pour panneaux. Options du sélecteur comparées sans
+  tenir compte des majuscules.
+- Avertissement « sens de la puissance inversé ? » quand la batterie mesure
+  l'inverse exact de sa consigne pendant plus d'une minute.
+- Identification de phase : une consigne de test refusée n'enregistre plus de
+  phase, et une batterie qui fournit bien plus que demandé est signalée.
+- Marstek : sens de « Battery power » proposé « positive en charge »,
+  option d'arrêt « stop » conseillée ; Venus E, E v3 et C sans entrée solaire.
+
 ## 3.7.6
 
 - Correction : deux onduleurs ne peuvent plus porter le même « Identifiant
