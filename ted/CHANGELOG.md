@@ -2,6 +2,45 @@
 
 Nouveautés détaillées de chaque version : <https://ted-energy.fr/evolutions>
 
+## 3.7.8
+
+- Charge standard sur surplus : « Export qui déclenche la charge » réglable de
+  30 à 400 W, 100 W par défaut. En dessous de 100 W, un avertissement s'affiche
+  et une fenêtre demande de confirmer : le seuil de sécurité est alors
+  insuffisant pour une régulation fine. Les valeurs déjà enregistrées sont
+  gardées (au-delà de 400 W : ramenées à 400 W).
+- Corrigé : en mode Autonome sans rien à faire (batteries au minimum, par
+  exemple au petit matin), la régulation renvoyait à chaque cycle la charge puis
+  la décharge à 0 W : le sélecteur de mode des onduleurs passait de « input » à
+  « output » deux fois par cycle (plus de 40 000 changements en 4 heures pour
+  deux Hyper 2000 reliés par le cloud Zendure, qui ont ensuite cessé de
+  transmettre leurs mesures). Désormais, un onduleur mis en veille passe une
+  seule fois en décharge à 0 W (consigne de charge remise à 0 sans toucher au
+  sélecteur), puis la régulation n'y touche plus tant que la veille dure.
+- Une consigne de 0 W déjà appliquée n'est plus renvoyée toutes les 60 s : une
+  charge lancée depuis l'application du fabricant (protection de la batterie,
+  charge manuelle) n'est plus contrariée. L'onduleur est repris dès que la
+  régulation en a besoin et que son niveau de batterie le permet.
+- Nouveau : consigne d'un onduleur changée par un autre système (application du
+  fabricant, charge de protection de la batterie, autre HEMS). La régulation
+  compare chaque cycle les consignes relues à celles qu'elle a écrites ; si une
+  autre valeur apparaît, l'onduleur est laissé de côté (plus aucune consigne,
+  la valeur de l'autre système est conservée) : ligne orange et bouton ⚠ sur la
+  page Onduleurs avec l'heure de l'incident et l'heure de reprise prévue,
+  avertissement dans « Avertissements et erreurs » (« un seul HEMS doit piloter
+  cet onduleur »). Il est repris 5 minutes après le dernier changement (réglage
+  « Pause après une consigne changée par un autre système », 0 = pas de
+  détection), ou tout de suite par le menu ⋮ « Reprendre la main » ; l'incident
+  reste rappelé une heure (« Autre système 14:55 → rétabli 15:00 »). Un
+  onduleur désactivé n'est pas surveillé.
+- Une page de l'interface restée ouverte pendant une mise à jour de TedEnergy
+  affiche « Une nouvelle version de l'interface est installée » avec un bouton
+  « Recharger » (sinon elle gardait l'ancien affichage).
+- « Niveau de batterie illisible » devient « Mesures non reçues (niveau de
+  batterie inconnu) », et « Hors ligne » devient « Mesures non reçues » dans la
+  page du cloud Zendure : l'appareil peut être en ligne dans l'application du
+  fabricant sans que ses mesures arrivent.
+
 ## 3.7.7
 
 - Corrigé : fausse erreur 01 « démarrage en charge non abouti » d'un onduleur
