@@ -2,6 +2,92 @@
 
 Nouveautés détaillées de chaque version : <https://ted-energy.fr/evolutions>
 
+## 3.7.9
+
+- Corrigé : **priorité de décharge « basse »**. Un onduleur de priorité basse
+  pouvait prendre, à la fin de la durée minimale d'un autre, sa place dans la
+  sélection parce que sa batterie était plus haute, puis être écarté sans être
+  remplacé : un seul onduleur travaillait alors que « Un onduleur de plus tous
+  les… » en demandait deux (vu le 25/10, J6 et 2400AC en priorité basse). Une
+  priorité basse ne remplace plus jamais un autre onduleur ; elle n'est appelée
+  qu'en dernier recours, quand les autres ne peuvent pas fournir la consigne
+  (batteries au niveau minimum, ou tous à leur puissance maximale). Un onduleur
+  de priorité haute ou moyenne remplace un onduleur de priorité basse déjà au
+  travail. La priorité solaire reste la première.
+- Nouveau : Paramètres › Répartition entre les onduleurs › **Intégrer les
+  onduleurs de priorité basse** (désactivé par défaut) et « Écart de batterie
+  pour l'intégrer » (25 points). Quand la batterie d'un onduleur de priorité
+  basse dépasse de cet écart celle du meilleur onduleur de priorité élevée ou
+  moyenne, il travaille avec les autres (batterie la plus haute d'abord), puis
+  redevient un renfort quand l'écart retombe sous 80 % du seuil. Pour une
+  batterie sans panneaux solaires, ou une voiture (V2G) dont on garde une réserve.
+- Nouveau : **retour à une version précédente depuis l'interface**, en gardant
+  vos réglages. Paramètres › Système › **Version** affiche la version en
+  service et, à partir de la version 3.7.10, les deux versions précédentes
+  contenues dans l'image (rien à télécharger, que ce soit sous Home Assistant ou
+  Docker). Avant le changement, TedEnergy montre ce que vous perdez (nouveautés
+  des versions concernées, réglages, fiches d'onduleurs ou automatisations que la
+  version précédente ne connaît pas), prend un point de restauration de la
+  configuration (bouton « Annuler le changement ») puis redémarre. Une version
+  qui ne démarre pas est abandonnée toute seule au profit de la version
+  installée. Une version précédente dont les données ne seraient plus lisibles
+  (nouveau format de données, autre version de Python…) est affichée en grisé avec
+  la raison. Une pastille « Version précédente » reste visible tant qu'elle est en
+  service ; une mise à jour de l'application ou de l'image rétablit la version la
+  plus récente. La version 3.7.9 elle-même ne contient pas encore de version
+  précédente à proposer : elles apparaissent à partir de la 3.7.10.
+- Une version ne supprime plus ce qu'elle ne comprend pas : les champs d'une
+  automatisation, d'une règle de notification ou d'un équipement ajoutés par une
+  version plus récente sont conservés à l'enregistrement (les fiches d'onduleurs
+  le faisaient déjà), pour qu'un retour en arrière ne fasse rien perdre.
+
+- Marge de redémarrage dans les deux sens : le réglage « Marge de redémarrage »
+  (2 points par défaut, et la marge de la fiche de chaque onduleur) ne retenait
+  que la charge d'une batterie presque pleine. Elle retient maintenant aussi la
+  décharge d'une batterie presque vide : avec un minimum de 10 % et 2 points,
+  une décharge ne démarre qu'à partir de 12 % (au lieu de 11 %, d'où le va-et-vient
+  autour du minimum) ; une décharge déjà commencée continue jusqu'au minimum.
+  La charge, elle, reste possible dès le minimum. Pas de marge pour un onduleur en
+  priorité solaire (son solaire alimente le réseau sans vider la batterie), pour un
+  minimum imposé par une automatisation ni pour la voiture d'une borne V2G. Un seul
+  réglage vaut pour les deux sens ; la valeur déjà enregistrée est conservée.
+
+- Corrigé (régression de la 3.7.8) : un onduleur « en veille » pouvait
+  continuer de décharger pendant des heures. La consigne de 0 W n'était plus
+  renvoyée une fois écrite, alors que le cloud du fabricant peut perdre une
+  écriture (relue « 0 W » par simple écho) : l'onduleur gardait sa dernière
+  puissance jusqu'au minimum de sa batterie et, en mode sortie, le petit
+  solaire ne chargeait plus. TedEnergy contrôle désormais le 0 W appliqué (valeur
+  relue après 25 s et, en veille, décharge mesurée de la batterie) et le
+  réécrit en silence, 3 essais. Sans effet, l'onduleur est laissé de côté
+  (même pause que « consigne changée par un autre système », 5 min par défaut)
+  avec un message distinct : « consigne non appliquée par l'onduleur » (écriture
+  perdue ou refusée, ou autre système qui pilote l'onduleur). Une charge lancée
+  par le fabricant n'est jamais contrariée.
+- Page Onduleurs : la pastille d'un incident terminé (« Autre système 16:23 →
+  rétabli 16:26 », « Consigne non appliquée → reprise ») porte un ✕ pour
+  l'effacer sans attendre l'heure de rappel. Une alerte encore en cours ne peut
+  pas être effacée : seul un incident terminé a ce bouton.
+- Quand le sélecteur de mode change de sens (charge / décharge), la consigne
+  de ce sens est réécrite même si elle semblait déjà en place.
+- Fiches des onduleurs : contrôle d'ensemble, pour toutes les marques et
+  toutes les connexions (Home Assistant, cloud, API locale, MQTT), au bouton
+  « Tester », à l'enregistrement et sur la page Onduleurs (pastille « fiche à
+  corriger » / « fiche à vérifier » pour les fiches déjà enregistrées).
+  Refusé : une action Home Assistant qui n'existe pas (intégration absente),
+  une action qui vise un appareil d'un connecteur de TedEnergy, une entité de
+  commande ou un niveau de batterie déjà utilisé par un autre onduleur.
+  Signalé sans bloquer : une mesure partagée, une entité hors de l'appareil
+  choisi, des consignes et un niveau de batterie lus par des sources
+  différentes.
+- Indevolt / IsyPower / Matter France : la fiche ne propose plus les actions
+  indevolt.charge / indevolt.discharge si l'intégration officielle Indevolt
+  n'est pas dans Home Assistant (IsyPower relié par une autre intégration
+  recevait « 400: Bad Request ») : elle passe en deux consignes et oriente vers
+  le connecteur de TedEnergy. Le niveau visé en décharge n'est jamais sous le
+  niveau minimal réglé dans l'onduleur. Message clair quand Home Assistant ne
+  connaît pas une action.
+
 ## 3.7.8
 
 - Charge standard sur surplus : « Export qui déclenche la charge » réglable de

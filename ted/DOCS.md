@@ -128,6 +128,21 @@ signale lui-même chaque nouvelle version de TED ; cliquez sur **Mettre à jour*
 3. Paramètres → Applications → Boutique → menu ⋮ → **Rechercher des mises à
    jour**, puis **Mettre à jour** sur TED.
 
+### Revenir à une version précédente (à partir de la 3.7.10)
+
+Si une nouveauté pose problème, ouvrez TedEnergy puis **Paramètres › Système ›
+Version** : la version en service et les deux versions précédentes contenues
+dans l'application y sont listées (aucun téléchargement). Choisissez **Revenir à
+cette version** : TedEnergy montre ce que vous perdez, prend un point de
+restauration de votre configuration puis redémarre. Vos réglages, votre licence
+et votre historique sont conservés. **Annuler le changement** remet la
+configuration d'avant. Une mise à jour de l'application par Home Assistant
+rétablit la version la plus récente.
+
+Vous pouvez aussi, dans Home Assistant, restaurer la sauvegarde faite avant la
+mise à jour (Paramètres › Système › Sauvegardes › restaurer **seulement**
+l'application TedEnergy).
+
 ### Passer de l'installation manuelle au dépôt TED
 
 Les deux installations n'ont pas le même dossier de données (`local_ted` pour
