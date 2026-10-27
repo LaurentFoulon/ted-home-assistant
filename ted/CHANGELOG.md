@@ -2,6 +2,196 @@
 
 Nouveautés détaillées de chaque version : <https://ted-energy.fr/evolutions>
 
+## 3.7.10
+
+- Corrigé : sur la maison animée, un équipement spécifique (pompe à chaleur, ballon d'eau chaude, piscine) dont la
+  puissance est sous le seuil d'affichage reste dessiné, mais sans cadre ni puissance (avant, le cadre « 0 W · au repos »
+  restait affiché).
+- Automatisations : **elles reprennent après un redémarrage de TedEnergy**. L'état de chaque automatisation (active
+  depuis quand, dernier début) est conservé ; pendant les 2 premières minutes une automatisation active n'est pas
+  terminée (les mesures du cloud ne sont pas encore revenues) et ses délais ne repartent plus de zéro.
+- Automatisations : nouvelle case **« Si une valeur de la condition est indisponible, garder l'état actuel »** (ni début ni
+  fin tant qu'une valeur manque : entité de Home Assistant ou cloud qui disparaît quelques instants).
+- Automatisations : **nouvelles variables** pour les conditions : état de chaque onduleur (erreur 01, calibration, en
+  pause, démarrage, état, connexion utilisée, connexion de secours), lever et coucher du soleil, il fait jour, hauteur du
+  soleil (selon la position réglée dans la prévision météo), bilan du jour (production, consommation, achat, injection,
+  autonomie, coût net) et prochaine période tarifaire (heures avant le changement, avant les heures creuses, avant leur
+  fin).
+- Automatisations : l'action **adresse web (webhook)** accepte une méthode (POST, GET, PUT, PATCH), un corps et des
+  en-têtes, avec {rule}, {event}, {time} et n'importe quelle variable ({battery.avg_pct}) : notifications ntfy, Telegram,
+  Discord… Sans option, le message habituel est envoyé comme avant.
+- Automatisations : la liste affiche **la dernière activité** de chaque automatisation (début, fin, nombre de débuts et
+  durée de marche sur 7 jours) ; la fenêtre de l'automatisation donne l'**historique** des débuts et fins et une
+  **simulation sur une journée passée** (hier, aujourd'hui ou une date) avec les mesures enregistrées et les délais réglés,
+  sans rien appliquer ; les valeurs que l'historique ne garde pas (entités de Home Assistant, cloud…) sont signalées.
+- Corrigé : dans l'éditeur d'une automatisation, la liste déroulante de choix d'une variable ou d'une entité ne se ferme
+  plus quand on fait défiler la molette avec le curseur hors de la liste. Elle reste ouverte, suit son bouton, et ne se
+  ferme qu'au choix d'une valeur ou à un clic à côté.
+- Amélioré : **« Régler avec une IA »** à jour des dernières évolutions. Le résumé joint à l'IA commence maintenant par
+  l'installation (onduleurs, connexion utilisée, priorités, marges, équipements, automatisations), le bilan de chaque
+  jour, l'activité de chaque onduleur (heures, démarrages, défauts, pauses, écritures en échec) et les réglages que vous
+  avez modifiés pendant la période : l'IA voit ce qui est installé et l'effet de ses conseils. Le texte donné à l'IA
+  décrit le démarrage des onduleurs, les priorités de décharge, les marges de redémarrage, les connexions multiples, les
+  équipements et les automatisations (effets et variables), et lui demande de vérifier la santé de l'installation avant
+  de proposer des réglages ou des automatisations. Les noms anonymes (« Onduleur 1, 2… ») s'appliquent aussi au résumé.
+- Nouveau : **la phase d'un onduleur piloté est détectée automatiquement** (réseau triphasé). Elle n'est plus à saisir :
+  la fiche de l'onduleur l'affiche en lecture seule (« détectée le … à … W »). Le bouton « Identifier la phase »
+  (fiche de l'onduleur, menu ⋮ de la page Onduleurs) la refait à volonté : l'onduleur décharge brièvement et TedEnergy
+  regarde quelle phase du compteur réagit. Si le résultat n'est pas sûr (petite puissance, appareil de la maison qui
+  démarre), la puissance monte (300, 700, 1 200, 2 000 W au plus, dans la limite de l'onduleur) jusqu'à ce que la phase
+  soit certaine. Le test de validation (Diagnostic › Test des onduleurs) la détecte aussi, et lance cette recherche à
+  puissance croissante quand ses 100 W ne suffisent pas. Les onduleurs surveillés et solaires, qui ne reçoivent aucune
+  consigne, gardent leur phase à déclarer. Une phase pas encore vérifiée s'affiche « L1? » dans le tableau.
+- Nouveau : **bouton « Soutenir le projet »** dans la barre du haut, lien direct vers la cagnotte. Le lien est modifiable
+  depuis TED admin et se met à jour à chaque vérification de la licence (s'il change ou disparaît, le bouton suit).
+- Nouveau : **on ne supprime plus ce que la régulation utilise encore**. Tant qu'un appareil est dans le tableau des
+  onduleurs (piloté ou surveillé), TedEnergy refuse de supprimer l'appareil, de lui retirer une connexion, de retirer
+  l'intégration d'un appareil MQTT ou d'un connecteur (cloud, API locale) dont l'une des valeurs lui sert, et d'effacer
+  le compte d'un connecteur. Le message nomme les onduleurs concernés. Ordre à suivre : retirer l'appareil de la
+  régulation (page Onduleurs), supprimer ensuite une connexion ou toutes, puis l'appareil. Désactiver une connexion ou
+  en ajouter une reste possible à tout moment.
+- Nouveau : **le rapport de configuration joint à la validation de la licence décrit toutes les connexions de chaque
+  appareil** (format 3), pour établir la liste des onduleurs compatibles avec les connexions qui fonctionnent
+  réellement. Pour chaque connexion : type (MQTT local, API locale, cloud, Home Assistant) et connecteur, position,
+  activée / validée / préférée / utilisée, entités anonymisées, réglages, compteurs d'écritures (réussies, échouées,
+  erreur 01, mesures illisibles), temps d'utilisation, pannes (nombre, durée totale, plus longue) et bascules. S'y
+  ajoutent les réglages de bascule, les batteries déclarées (nombre, modèles, capacité), le résultat du test de
+  validation, la phase et la priorité de décharge. Jamais de mesure, d'adresse, de jeton, d'identifiant d'appareil ni
+  de nom saisi. La phrase de transparence de la carte Licence est mise à jour.
+- Changé : dans la fiche d'un appareil, **« Ajouter une connexion » ne propose le cloud et l'API locale que pour les
+  marques dont TedEnergy a développé le connecteur** (Zendure, EcoFlow, Indevolt, IsyPower). MQTT local et Home
+  Assistant restent proposés pour toute marque : les entités se saisissent alors à la main (loupe de chaque champ).
+- Nouveau : **un équipement peut être lu sous plusieurs formes de puissance** (page Équipements › fiche de l'équipement
+  › « Forme de la puissance »). Demande d'un utilisateur : sa pompe à chaleur Hisense n'indique pas de puissance, seulement
+  un compteur de consommation en kWh. Quatre formes en plus de la puissance en W ou kW : **compteur d'énergie** (Wh, kWh :
+  la puissance est calculée à partir de la variation du compteur sur une fenêtre réglable de 10 minutes par défaut, et
+  l'énergie comptée est celle du compteur lui-même ; la remise à zéro du compteur en fin de journée est gérée), **courant
+  en ampères × tension** (monophasé ou triphasé), **marche / arrêt avec une puissance fixe** (prise, relais, thermostat :
+  pour un thermostat, TED utilise l'action en cours quand elle existe). Par défaut (« Automatique »), la forme est reconnue
+  d'après l'unité de chaque entité ; les équipements déjà déclarés ne changent pas. Une puissance calculée ou estimée
+  s'affiche avec « ≈ ». Les formes s'appliquent à tous les types d'équipements, pas seulement aux pompes à chaleur.
+
+- Nouveau : **Indevolt et IsyPower sont deux marques distinctes**, chacune avec son connecteur (Paramètres › Système ›
+  Connecteurs d'appareils › Indevolt / IsyPower), sa liste de modèles et sa fiche dans la page Onduleurs. « Matter
+  France » (simple revendeur) disparaît des textes. Indevolt : SolidFlex 1200 / 2000 / 3000 / 3000 Hybrid Pro / 3600,
+  PowerFlex 2000 / 3000 / 3600, BK1600 et BK1600 Ultra. IsyPower : Titan 2400, avec ses modules d'extension LINK.
+- Corrigé : **une IsyPower Titan 2400 restait bridée à 800 W en décharge**. Le connecteur appliquait lui-même la limite
+  de la 1re génération d'Indevolt (charge 1 200 W, décharge 800 W) à un Titan qui se présente comme un BK1600 dans l'API.
+  La puissance maximale vient maintenant du modèle et des modules LINK déclarés (Titan seule : 1 000 W en décharge,
+  1 200 W en charge ; avec 1 LINK 2000 : 2 000 W / 2 400 W ; avec 2 LINK 2000 ou 1 LINK 4000 : 2 400 W), réglable dans
+  **« Réglages de l'appareil »** du connecteur (modèle, modules LINK, plafonds de charge et de décharge). Le nombre de
+  modules LINK ne se lit pas dans l'API : il se déclare. Si l'appareil **refuse** une puissance, TED envoie la limite
+  garantie par Indevolt (800 W en décharge) au lieu de laisser une consigne sans effet ; s'il **ne tient pas** la
+  puissance demandée, TED retient la puissance qu'il tient réellement pendant 1 h. Les appareils déjà ajoutés dans le
+  connecteur Indevolt gardent leurs variables (`local_indevolt_…`) : pour une IsyPower, soit un plafond personnalisé,
+  soit un nouvel ajout dans le connecteur IsyPower (variables `local_isypower_…`).
+- Nouveau : **consigne Home Assistant ramenée à la borne de l'entité**. Une entité « number » de puissance (W, kW)
+  qui annonce un maximum plus bas que la puissance de la fiche n'est plus appelée au-delà : TED envoie le maximum de
+  l'entité et le dit dans le journal (`[BORNE_ENTITE]`), au lieu d'une valeur que Home Assistant refuse. Une entité en %
+  (niveau de coupure pris pour une puissance) garde son refus, qui reste l'alerte.
+- Nouveau : une fiche IsyPower reliée à une intégration de Home Assistant qui la voit comme un « Indevolt-BK1600 »
+  (limites 800 W / 1 200 W) affiche un avertissement qui oriente vers le connecteur IsyPower.
+- Changé : l'API locale Zendure n'est **plus « expérimentale »** (fiable à l'usage) ; EcoFlow, Indevolt et IsyPower le
+  restent jusqu'à un essai sur un vrai appareil.
+
+- Corrigé : **les batteries déclarées dans la fiche d'un appareil n'étaient pas enregistrées** (Paramètres › Appareils ›
+  Modifier › Batteries). Elles avaient leur propre bouton « Enregistrer », que « Appliquer » ne déclenchait pas : la
+  fenêtre se fermait et les batteries détectées, ajoutées ou retirées étaient perdues. Les deux boutons de l'onglet
+  sont supprimés : **« Tester la connexion »** (bas de la fiche) lit aussi les batteries déclarées et explique ce qui
+  ne va pas, **« Appliquer »** enregistre la connexion ET les batteries (bloqué tant qu'une batterie nouvelle ou
+  modifiée n'est pas testée). Un appareil encore en brouillon peut aussi déclarer ses batteries ; supprimer un appareil
+  supprime ses batteries. Le test d'une batterie affiche enfin le détail (entité introuvable…) au lieu de « Test
+  impossible ».
+- Nouveau : **prévision de la production solaire à 24 h / 48 h** (Paramètres › Mon installation › Prévision
+  météorologique). TedEnergy lit gratuitement, sans compte, les prévisions météo heure par heure (Open-Meteo : meilleur
+  modèle automatique, Météo-France, ECMWF, ICON, GFS ; MET Norway) et calcule la production **théorique** de vos
+  panneaux (kWh et pic en kW pour aujourd'hui, demain et après-demain) d'après leur puissance, leur inclinaison, leur
+  orientation et la position du soleil. Le rendement réel de l'installation est **appris chaque jour** sur votre
+  production passée (ombrages, pertes, panneaux ajoutés ou retirés : repris en quelques jours, sans rien saisir). La
+  page compare chaque prévision de la veille à la production réelle (écart mesuré par source). Nouvelles variables
+  `meteo.*` pour les automatisations (dont `meteo.solar_next_day_kwh`, la prochaine journée à venir) et deux modèles
+  d'automatisation : « Prévision solaire faible : charger la nuit précédente » et sa variante Tempo rouge. C'est une
+  **estimation fondée sur des prévisions** : elle ne reflète jamais parfaitement la réalité et TedEnergy ne peut être
+  tenu responsable d'une estimation erronée. Seules les coordonnées arrondies à 1 km sont envoyées aux services météo.
+- Corrigé : **retirer un onduleur ne supprime plus l'appareil**. Sur la page Onduleurs, « Retirer de la régulation »
+  (menu ⋮ ou fiche de l'onduleur) met l'onduleur à l'arrêt puis le fait redevenir un appareil « pas encore utilisé » :
+  sa fiche, ses connexions et tous ses réglages restent dans Paramètres › Appareils, et « Ajouter un onduleur » le
+  remet en service sans rien ressaisir. Seule la page Appareils supprime un appareil.
+- Nouveau : un **appareil peut être enregistré sans validation** (« Enregistrer sans valider ») pour compléter sa
+  saisie petit à petit. Chaque connexion garde son état de test : une connexion non validée est enregistrée mais
+  **jamais utilisée** (ni par la régulation, ni par la page Onduleurs), sa pastille est barrée en rouge. Un appareil ne
+  devient onduleur que s'il a au moins une connexion testée et validée.
+- Nouveau : **un nouvel appareil n'a aucune connexion au départ** (plus de Home Assistant par défaut) : la fiche
+  invite à choisir la première, parmi MQTT local, API locale, cloud ou Home Assistant.
+- Nouveau : **erreur 01 en cycle** (Paramètres › Surveillance et sécurité). Les cinq réglages (délai, écart toléré,
+  intervalle entre deux tests, puissance du test, priorité après déblocage) sont réunis dans la rubrique, avec deux
+  courbes qui suivent les valeurs saisies : la détection (consigne, mesure, zone tolérée, fin du délai) et le cycle
+  (mise à l'écart, tests, reprise, priorité), pour un onduleur bloqué ou qui répond et un test qui réussit au 1er…5e
+  essai. Des avertissements signalent les réglages incohérents. La « priorité après déblocage » (durée minimale de
+  travail d'un onduleur) quitte la rubrique Répartition ; sa valeur est conservée.
+- Nouveau : **appareils et connexions**. Un appareil se déclare une seule fois (Paramètres › Appareils) avec toutes
+  ses connexions : MQTT local, API locale du fabricant, cloud du fabricant, Home Assistant. Elles sont classées par
+  priorité (par défaut dans cet ordre, réglable par appareil) ; TedEnergy utilise la première qui répond. Si elle
+  n'a plus de mesure pendant 30 s (réglable), il passe sur la suivante et réécrit la consigne en cours ; il revient
+  sur la préférée quand elle est stable depuis 5 min (réglable). Les fiches d'onduleur existantes deviennent des
+  appareils avec leur connexion actuelle, rien à ressaisir ; les champs de la fiche restent ceux de la connexion
+  préférée, donc un retour à la 3.7.9 garde chaque appareil fonctionnel (une seule connexion).
+- Nouveau : la page **Onduleurs** ne règle plus que l'usage d'un appareil : rôle (piloté ou surveillé), phase,
+  priorité de décharge, actif. « Ajouter un onduleur » choisit parmi les appareils déclarés et validés. Connexions,
+  entités, puissances maximales, niveaux de batterie et protections se règlent dans Paramètres › Appareils.
+- Nouveau : le **remplissage automatique** suit le type de la connexion affichée (cloud, API locale, MQTT local ou
+  Home Assistant) : une seule liste d'appareils, celle de ce type, sans mélange avec les autres sources. Un appareil
+  MQTT relié à un appareil du cloud est proposé tel quel : le choisir l'intègre et le sépare du cloud (après accord)
+  pour en faire une vraie connexion MQTT local.
+- Nouveau : **chaque connexion se teste séparément**, depuis sa carte, sans l'ouvrir. Le bouton n'apparaît que pour une
+  connexion jamais testée, modifiée ou en échec ; une connexion déjà enregistrée et inchangée n'est pas à retester.
+  « Tester toutes les connexions » est à côté d'« Appliquer ». Les problèmes d'une connexion en échec sont listés dans
+  sa carte.
+- Corrigé : un appareil dont la connexion préférée change (par exemple l'API locale ajoutée avant le cloud) n'était
+  plus indiqué « utilisé par » dans la liste du cloud de son fabricant.
+- Nouveau : **niveaux de batterie à glisser** (Paramètres › Batteries et puissances maximales). Une barre pour les
+  niveaux généraux et une seule jauge pour tous les onduleurs pilotés : une flèche étiquetée par onduleur, à son
+  niveau réel ; un clic sur la flèche ou sur son nom choisit l'onduleur dont on règle les deux poignées (souris,
+  doigt ou flèches du clavier : niveau minimal pour décharger, niveau maximal pour charger), les petits traits
+  montrent les niveaux des autres. Les flèches se rangent sur plusieurs lignes quand des batteries ont le même
+  niveau. La même barre est dans la fiche de l'appareil (onglet Niveaux et protections).
+- Nouveau : interrupteur **« Appliquer ces niveaux à tous les onduleurs pilotés »**, avec mémoire. Activé, chaque
+  onduleur prend les niveaux généraux (écrits dans l'appareil quand sa fiche a les entités de niveau, contrôlés et
+  corrigés à chaque actualisation) et ses niveaux d'origine sont gardés dans sa fiche ; désactivé, ils sont remis.
+  Désactivé, un niveau changé dans l'application du fabricant est repris par TedEnergy, jamais écrasé. Un niveau
+  imposé par une automatisation reste prioritaire (poignée verrouillée). Les deux niveaux généraux ne sont plus
+  des champs de la liste des réglages : ils se règlent avec les barres. Interrupteur activé, la jauge des onduleurs
+  disparaît : il ne reste que la liste des onduleurs concernés et, repliés, leurs niveaux d'origine gardés.
+- Nouveau : **Diagnostic par type de connexion**. Quatre pages remplacent les anciennes (liaison Home Assistant,
+  cloud Zendure, API locale Zendure) : Home Assistant, Cloud, API locale, MQTT. Chacune recense les appareils de
+  toutes les marques et affiche leurs valeurs, l'heure du dernier relevé, l'intervalle moyen entre deux relevés,
+  l'heure du dernier changement de valeur, les consignes envoyées et leur confirmation, le détail minute par minute
+  de la dernière heure et les événements. La fiche d'un appareil indique si cette connexion est celle utilisée ou
+  en secours. Le MQTT, qui n'avait aucune page de diagnostic, a la sienne.
+- Déplacé : le **journal des onduleurs** et les téléchargements de journaux sont dans Notifications et journal
+  (onglet Journal des onduleurs).
+- Nouveau : **Sauvegarde et versions** réunies en une page à trois onglets (Sauvegardes, Versions, Maintenance). Le
+  fichier de sauvegarde porte une **étiquette** (version de TedEnergy, format des données) ; à la restauration,
+  TedEnergy la lit et dit, avant de remplacer quoi que ce soit, si la version en service peut la relire (refus expliqué
+  si le format est plus récent). La configuration remplacée est gardée dans le dossier « sauvegardes » (les cinq
+  dernières). Le détail des commandes Home Assistant (console) est dans l'onglet Maintenance.
+- Nouveau : page **Communication avancée** (Paramètres › Appareils et connexions) : liaison en temps réel avec Home
+  Assistant, actualisation des variables, relecture des consignes envoyées, délais du compteur Shelly. L'alerte de
+  tension d'une batterie et les réglages de la puissance réelle des batteries sont dans Batteries et puissances maximales.
+- Nouveau : les **batteries d'un appareil** se déclarent dans sa fiche (onglet Batteries, onduleurs pilotés ou
+  surveillés), plus dans le Diagnostic, qui n'affiche que leurs valeurs.
+- Nouveau : **valeurs stables d'un appareil** pour les automatisations : `appareil.<référence>.<valeur>` (niveau de
+  batterie, puissances, état de calibration…, plus des valeurs ajoutées dans la fiche : prochaine calibration, injection
+  sur le réseau…). La valeur lue est celle de la connexion utilisée par l'appareil : l'automatisation continue de
+  fonctionner quand il change de connexion. Un effet peut aussi imposer une valeur d'appareil (cible « Une valeur d'un
+  appareil »). Une automatisation liée à l'entité d'une seule connexion est signalée, avec la valeur stable à
+  utiliser à la place. Une automatisation qui cite un appareil supprimé ou retiré d'un connecteur est désactivée,
+  avec la raison.
+- Corrigé : un niveau envoyé à un appareil est ramené dans la plage que son entité accepte (Zendure : minimum 5 à
+  50 %, maximum 70 à 100 %) au lieu d'être refusé.
+- Paramètres : rubriques réorganisées (Mon installation, Appareils et connexions, Fonctionnement, Réglages fins,
+  Données, Accès et services, Interface et aide, Licence en dernier).
+
 ## 3.7.9
 
 - Corrigé : **priorité de décharge « basse »**. Un onduleur de priorité basse
@@ -80,7 +270,7 @@ Nouveautés détaillées de chaque version : <https://ted-energy.fr/evolutions>
   Signalé sans bloquer : une mesure partagée, une entité hors de l'appareil
   choisi, des consignes et un niveau de batterie lus par des sources
   différentes.
-- Indevolt / IsyPower / Matter France : la fiche ne propose plus les actions
+- Indevolt / IsyPower : la fiche ne propose plus les actions
   indevolt.charge / indevolt.discharge si l'intégration officielle Indevolt
   n'est pas dans Home Assistant (IsyPower relié par une autre intégration
   recevait « 400: Bad Request ») : elle passe en deux consignes et oriente vers
@@ -139,8 +329,8 @@ Nouveautés détaillées de chaque version : <https://ted-energy.fr/evolutions>
 - Délai avant l'erreur 01 : 240 s par défaut au lieu de 60 s (moins de
   fausses erreurs 01 sur les onduleurs lents). Une valeur déjà enregistrée dans
   Paramètres est gardée.
-- Connecteur « Indevolt / IsyPower / Matter France » (Paramètres › Connecteurs
-  d'appareils) : même API locale chez les trois marques, nom et textes mis à
+- Connecteur Indevolt / IsyPower (Paramètres › Connecteurs
+  d'appareils) : même API locale chez les deux marques, nom et textes mis à
   jour. « Rechercher sur le réseau » parcourt aussi le réseau local (port 8080,
   appareil reconnu par son numéro de série) : il trouve désormais l'appareil
   quand TedEnergy tourne dans Docker ou en application Home Assistant, où la
