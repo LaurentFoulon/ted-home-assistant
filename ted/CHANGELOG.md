@@ -2,6 +2,133 @@
 
 Nouveautés détaillées de chaque version : <https://ted-energy.fr/evolutions>
 
+## 3.8
+
+- Corrigé : **décharge emballée à la fin de la charge planifiée**. Les onduleurs mettent 10 à 20 secondes à
+  arrêter leur charge, et la régulation prenait cette charge encore en cours pour une consommation de la maison :
+  jusqu'à 7 kW de décharge sur tous les onduleurs pour quelques centaines de watts de besoin, puis plusieurs kW
+  renvoyés au réseau. La charge en train de s'arrêter n'est plus comptée : la décharge reprend directement à la
+  consommation de la maison, sur le nombre d'onduleurs nécessaire (aussi à la fin d'une charge imposée par une
+  automatisation).
+- Corrigé : **tous les onduleurs arrêtés d'un coup puis relancés quelques secondes plus tard**. Pendant une forte
+  décharge, le petit export dû à la régulation elle-même suffisait à préparer la charge : au bout de la temporisation,
+  la décharge était coupée sur tous les onduleurs, puis relancée au cycle suivant (avec un achat au réseau le temps du
+  redémarrage). La charge ne se prépare désormais qu'une fois la décharge redescendue à son minimum.
+- Nouveau : **aucun onduleur ne décharge sous 50 W** (consigne de réveil), même prioritaire : quand la consigne est
+  faible, elle va à moins d'onduleurs au lieu d'être partagée en miettes (5 W chacun auparavant).
+- Changé : la **durée minimale de travail d'un onduleur** (ancien libellé « Priorité après déblocage ») est comptée
+  depuis la dernière fois où l'onduleur était nécessaire, comme pour la priorité solaire, et elle est respectée aussi
+  quand les onduleurs en priorité solaire suffisent. Un onduleur s'arrête plus tôt seulement si la charge démarre, si
+  sa part de la consigne passerait sous 50 W, ou par une protection.
+- Corrigé : **impossible de retirer une connexion MQTT désactivée ou hors ligne** d'un appareil, ni de supprimer l'appareil MQTT
+  qu'elle citait : les deux se bloquaient. Règle unique et claire : un appareil utilisé par la régulation garde toujours au
+  moins une connexion utilisable. Toute autre connexion se retire (corbeille de la fiche, ou « Détacher de… » directement
+  depuis la liste de la Connexion MQTT et des connecteurs) ; la suppression d'un appareil MQTT, d'un appareil de connecteur ou
+  d'un compte, citée par des appareils qui gardent une autre connexion, demande confirmation puis détache ces appareils tout
+  seule. La seule connexion utilisable d'un appareil reste protégée, avec la marche à suivre et un accès direct à sa fiche.
+- Nouveau : **rattacher une connexion à un appareil en un clic**. Un appareil MQTT, du cloud ou en API locale « sans appareil
+  associé » se rattache directement depuis sa ligne (bouton « Rattacher à un appareil »), depuis un bandeau de Paramètres ›
+  Appareils quand de nouveaux appareils MQTT sont détectés, ou depuis le menu ⋮ : on choisit l'appareil (celui du même modèle
+  est proposé d'abord, ou « Nouvel appareil »), sa fiche s'ouvre sur la nouvelle connexion avec l'appareil déjà choisi et ses
+  entités proposées ; il ne reste qu'à tester puis appliquer. Les listes indiquent par quel appareil chacun est utilisé.
+- Nouveau : la **maison 3D tient compte de la météo** (si la prévision météorologique du Paramètres › Mon installation est
+  activée) : lumière du soleil adoucie, ciel et brouillard ternis, ombres de nuages qui glissent sur la pelouse, et mention
+  « Ciel dégagé / Quelques nuages / Nuageux / Ciel couvert » sous la production solaire. La nébulosité de l'heure est publiée dans
+  `state.weather` (`cloud_pct`) : l'application Android 2.2 affiche la même maison.
+- Nouveau : **Store de fonctionnalités**. Une nouvelle page « Store » regroupe des fonctionnalités natives, éprouvées, que
+  vous activez ou désactivez en un clic ; chacune s'explique par un **schéma animé**, ne s'active que si ses conditions sont
+  réunies (onduleur compatible, entité disponible, licence) et s'appuie sur le moteur des automatisations. Deux
+  fonctionnalités pour commencer : **Calibration programmée** (à la date et l'heure choisies, la décharge des onduleurs
+  choisis, ou de tous, est bloquée et leur niveau maximal passe à 100 % pendant les heures qui précèdent ; répétition
+  possible) et **Respect de l'injection réseau** (en journée, quand le solaire produit : au-dessus de la puissance
+  injectée choisie, mesurée au compteur, 3 kW par défaut, les onduleurs sont
+  désactivés un à un, le plus gros d'abord, et leur contournement vers le réseau est bloqué ; la décharge des batteries
+  vers la maison n'est jamais comptée, la fonction reste en veille la nuit ; entité détectée pour Zendure,
+  à choisir pour les autres marques ; retour progressif sans va-et-vient). Le droit « Store » et le nombre de
+  fonctionnalités actives sont réglables par licence. **Calibration programmée** suit par défaut la **date annoncée par
+  l'onduleur** (Zendure : « Next Calibration », cloud, API locale ou Home Assistant), onduleur par onduleur ; les réglages
+  affichent maintenant, pour chaque onduleur, la **variable lue et sa valeur du moment** (« sensor.cloud_zendure_b1_next_calibration
+  = dim. 29/11 à 17:31, dans 27 jours ») ; ceux qui n'en annoncent pas suivent une date saisie, avec répétition. Correction :
+  la variable n'était jamais retrouvée sur une fiche complète (ni sur une autre connexion que celle utilisée, ni avec un
+  fuseau horaire différent de celui de la machine). Les modèles d'automatisation « Auto-calibration », « Jour Tempo rouge
+  demain » et « Prévision solaire faible » sont supprimés : ils font double emploi avec le Store.
+  Le message de la **Préparation de la charge planifiée** indique aussi la puissance du réseau et la place disponible
+  quand c'est la puissance qui limite.
+- Nouveau : **fonctionnalités « à tester »** dans le Store, regroupées dans un bloc à part (confirmation avant activation) :
+  **Veille de jour rouge** (la nuit qui précède un jour Tempo rouge, ou rouge et blanc, charge en heures creuses jusqu'au niveau
+  choisi ; option « seulement si peu de soleil est prévu »), **Charge de nuit selon la météo** (charge en heures creuses
+  seulement ce que le soleil de demain ne fournira pas, d'après la prévision solaire, la capacité des batteries et la
+  consommation moyenne apprise sur 7 jours ; ou niveau fixe quand peu de soleil est prévu), **Surplus vers le ballon d'eau
+  chaude** (allume un interrupteur de Home Assistant avec le surplus solaire, avant les batteries ou après un niveau choisi,
+  seuils et délais anti-va-et-vient), **Mode vacances** (dates d'absence : niveaux minimal et maximal imposés, charge depuis le
+  réseau coupée pour toutes les fonctions du Store, bilan de l'absence à votre retour) et **Alertes d'anomalie** (autant
+  d'alertes que voulu : conditions, durée, message avec valeurs, journal des notifications et téléphone ; sept exemples).
+  **Préparation de la charge planifiée** n'est plus signalée expérimentale. Le choix d'une entité Home Assistant (interrupteur du
+  ballon) reste réservé à l'interface web, comme celui du blocage du contournement.
+- Nouveau : **menu « Appareils »**. Onduleurs et Équipements partagent un seul onglet, avec une liste déroulante pour passer
+  de l'un à l'autre ; les onglets suivants sont Store, Paramètres, Diagnostic, Automatisations, Notifications et Aide.
+- Nouveau : **tableau de bord à widgets**. Chaque bloc (flux d'énergie en direct avec la maison complète, « En ce moment »,
+  bilan du jour, derniers jours, « Où passe l'énergie », historique) est un widget. « Modifier le tableau » permet de
+  **les déplacer en maintenant le clic**, de les **redimensionner** par le coin, de **changer leur taille**, de les
+  **retirer** ou de les **masquer sur téléphone**. « Ajouter un widget » ouvre une **bibliothèque** qui liste tous les
+  widgets, affichés ou non, avec un aperçu calculé sur vos mesures avant l'ajout.
+- Deux modes de placement au choix : **Aligné** (les widgets se rangent ligne par ligne, dans l'ordre, sans trou) et
+  **Libre** (chaque widget reste où vous le posez, des espaces vides sont possibles ; deux widgets ne se chevauchent
+  jamais). Sur tablette (2 colonnes) et téléphone (1 colonne), les widgets s'empilent dans l'ordre de la liste.
+- Nouveaux widgets : **Économies** (en euros, jour par jour), **Prochaine période tarifaire** (prix du kWh, temps avant
+  le changement, journée en un coup d'œil), **Solaire : prévu et réel**, **Santé des batteries**, **Heures de
+  consommation** (7 jours × 24 h), **Qui consomme** (par équipement), **Pic de consommation** (contre la puissance
+  souscrite) et **Valeur au choix** (n'importe quelle variable de TedEnergy, en plusieurs exemplaires).
+- La disposition est unique pour l'installation, **enregistrée sur le serveur** dans la configuration (historique des
+  modifications, sauvegarde) et lisible / modifiable par l'application mobile (`/api/dashboard/layout`, avec numéro de
+  révision : une modification faite ailleurs entre-temps est signalée). Un widget ou un réglage inconnu (version plus
+  récente) est conservé.
+- Application mobile (accès à distance) : l'application peut désormais lire les flux d'énergie (`/api/energy/flows`),
+  commander la borne de recharge (Charger maintenant / Pause / Automatique) et reprendre la main sur un onduleur dont la
+  consigne a été changée par un autre système (ou effacer le rappel de l'incident). Les réglages et la déclaration des
+  équipements restent réservés à l'interface locale.
+- Nouveau : **énergie réelle des batteries**. Quand les batteries d'un onduleur sont déclarées avec leur capacité (fiche de
+  l'appareil › Batteries ; pour une batterie Zendure AB1000S, AB2000X, AB3000… la capacité est déduite du modèle), TedEnergy
+  connaît l'**énergie** de chaque onduleur en kWh et pas seulement son niveau en %. Le **niveau global est pondéré par les
+  capacités** : une batterie de 4 kWh pleine et une de 1 kWh vide font 80 %, et non plus 50 % (scène de la maison, total de
+  la page Onduleurs ; la régulation continue de lire les niveaux des onduleurs). Un onduleur sans capacité connue n'est pas
+  compté et le niveau global reste alors la moyenne simple.
+- Nouveaux widgets : **Énergie des batteries** (niveau pondéré, énergie stockée, utilisable jusqu'aux niveaux minimaux, place
+  restante, détail par onduleur), **Autonomie des batteries** (temps et heure avant batteries vides en décharge, ou
+  pleines en charge, à la puissance moyenne des dernières minutes) et **Batteries pleines à…** (heure estimée de batteries
+  pleines d'après la production solaire prévue par la météo et la consommation moyenne de la maison, avec sa fourchette et
+  la courbe du niveau attendu ; une estimation, sans certitude). Les réglages sont dans le widget, pas dans les Paramètres :
+  **puissance moyenne sur 10, 15, 20 ou 30 minutes** et **actualisation toutes les 1 à 15 minutes**. Les nouveaux
+  réglages propres à un widget s'ouvrent par l'icône « réglages » du mode « Modifier le tableau » et dans la bibliothèque.
+- Nouvelles variables pour les automatisations : `battery.soc_weighted_pct`, `battery.capacity_kwh`, `battery.energy_kwh`,
+  `battery.usable_kwh`, `battery.room_kwh`, `battery.autonomy_h`, `battery.full_in_h`.
+- Nouvelle fonctionnalité du Store (expérimentale) : **Préparation de la charge planifiée**. Quand les batteries n'ont pas
+  la même capacité, la charge planifiée ne les remplit pas toujours à fond dans le temps imparti (puissance de charge de
+  chaque onduleur, délestage de la puissance souscrite). Avant le créneau, la fonction calcule ce que chaque batterie pourra
+  absorber et, si une batterie ne sera pas pleine à temps alors qu'une autre a de la marge, déplace de l'énergie des
+  batteries bien remplies vers les plus vides (certaines chargent pendant que d'autres déchargent) tout en continuant de
+  lisser le réseau à l'objectif ; un pic de consommation est complété par les autres onduleurs. Elle n'intervient que si cela
+  permet de stocker davantage, et prévient que ce transfert consomme un peu plus d'énergie (conversions DC/AC, effet Joule).
+  Réglages : délai de préparation (1 à 12 h), part de la puissance souscrite (80 % par défaut), onduleurs concernés,
+  puissance de transfert et gain minimal. Chaque onduleur affiche son rôle : « Préparation de la charge planifiée : cède de
+  l'énergie… / reçoit de l'énergie… ». Option **« Transférer avec le solaire seulement »** : aucune batterie n'est déchargée
+  pour en charger une autre. L'onduleur qui cède sort le solaire qu'il produit (sa batterie ne charge ni ne décharge) et la
+  batterie presque vide le reçoit en plus de son propre solaire (A produit 200 W et sort 200 W, B produit 100 W et charge
+  300 W) ; le transfert démarre à partir de 80 W de solaire sur les onduleurs qui cèdent, s'arrête sous 30 W, et la
+  consommation de la maison reste couverte comme d'habitude. Ménage la durée de vie des batteries.
+
+## 3.7.11
+
+- Nouveau : **flux d'énergie sur 24 heures** (hier et avant-hier) pour un diagramme de Sankey : d'où vient l'énergie
+  (solaire, réseau par période de l'abonnement, décharge de la batterie) et où elle va (maison, charge de la batterie,
+  injection). Le solaire alimente d'abord la maison, puis charge la batterie, puis part sur le réseau ; le manque est
+  comblé par la batterie, puis par le réseau. Le tableau de bord affiche la carte **« Où passe l'énergie »** (diagramme de
+  Sankey, au choix hier ou avant-hier, avec un tableau de tous les flux) ; les mesures sont aussi disponibles par
+  `/api/energy/flows` et en CSV horaire (`/api/energy/flows.csv`).
+- Vérifié : la charge planifiée de nuit (réseau vers batteries) n'est **pas** comptée dans la consommation de la maison
+  (elle apparaît comme charge de la batterie alimentée par le réseau). Le bilan horaire solaire + achat + décharge =
+  maison + charge + injection est contrôlé et son écart est affiché.
+
 ## 3.7.10
 
 - Corrigé : sur la maison animée, un équipement spécifique (pompe à chaleur, ballon d'eau chaude, piscine) dont la
