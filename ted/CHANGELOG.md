@@ -2,8 +2,135 @@
 
 Nouveautés détaillées de chaque version : <https://ted-energy.fr/evolutions>
 
-## 3.8
+## 3.8.1
 
+- **« Où passe l'énergie » : un jour au choix ou une durée, aujourd'hui en direct.** Le diagramme se pilote comme
+  l'historique détaillé : **Jour** (flèches, calendrier, bouton « Aujourd'hui »), **6 h**, **24 h**, **7 jours** ou
+  **30 jours** qui se terminent maintenant. Plus aucune attente : la journée en cours est calculée avec les mesures déjà
+  enregistrées et se met à jour chaque minute. Même graphique et même contenu pour toutes les périodes ; l'export CSV
+  couvre les jours entiers de la période. Nouvelle forme de la route : `GET /api/energy/flows?start=&end=` (millisecondes).
+- **Widget « Solaire : prévu et réel » refait.** Frise des 7 derniers jours et de demain (un clic ouvre le jour ; la
+  pastille donne l'écart de la prévision de la veille), avancement de la journée en cours (« 75 % de la prévision, reste
+  ≈ 1 kWh à produire »), pic, ciel, fiabilité de la prévision sur 30 jours, heure de batteries pleines (avec fourchette)
+  et courbe lisible heure par heure en la survolant ou en la touchant (réel, prévu la veille, corrigé).
+- **Partage d'automatisations et bibliothèque de la communauté.** Page Automatisations : **Exporter** (fichier
+  `.tedauto.json` ou texte à copier, dans la fenêtre d'une automatisation) et **Importer** (fichier ou texte collé). À
+  l'export, les adresses web et leurs en-têtes, e-mails, adresses IP et jetons sont retirés ; les entités et onduleurs
+  visés restent visibles. À l'import, un assistant associe chaque équipement de l'auteur (entité, onduleur, cluster,
+  zone, équipement, valeur d'appareil) à l'un des vôtres ; l'automatisation est toujours créée **désactivée**. Les
+  actions qui appellent un service, un script, une scène ou une adresse web sont signalées en rouge (non contrôlées) ;
+  des services dangereux (`shell_command`, redémarrage de Home Assistant…) sont refusés. **Bibliothèque** (réservée aux
+  utilisateurs connectés, avec la licence de l'installation) : parcourir par catégorie, recherche, tri par
+  téléchargements, étoiles ou nouveautés ; importer, donner une étoile (une par compte), signaler ; **Publier** une
+  automatisation avec titre, catégorie, mots-clés et description (français ou anglais). Chaque automatisation a un
+  identifiant unique : modifiée après publication, TedEnergy propose de mettre la publication à jour (nouvelle version
+  avec journal des changements, ou la garder telle quelle) ; une automatisation importée signale la nouvelle version de
+  l'auteur (« Mise à jour vN », associations reprises). Publier demande un compte ted-energy.fr et un **pseudonyme**
+  (seul nom affiché). Nouveau module `automation_share.py`, routes `/api/automations/export`, `/import/*`,
+  `/api/library/*` (jamais accessibles à distance), état dans `runtime/automation_library.json`.
+- **Compteur électrique : plusieurs compteurs classés par priorité, dont une valeur MQTT.** Nouvelle rubrique
+  Paramètres › Mon installation › Compteur électrique (séparée de la connexion Home Assistant, qui reste dans
+  Appareils et connexions) : un ou plusieurs compteurs, dans l'ordre de priorité. Trois types : entité Home Assistant,
+  **valeur d'un appareil relié à TedEnergy** (serveur MQTT intégré, cloud ou API locale d'un fabricant : par exemple le
+  Smart Meter 3CT de Zendure, sans Home Assistant) et Shelly en direct. Si le compteur utilisé ne répond plus pendant
+  5 s, TedEnergy passe sur le suivant ; il revient sur le prioritaire quand celui-ci répond sans interruption depuis
+  5 min (délais réglables dans Communication avancée). Option « Inverser le signe » pour un appareil qui compte
+  l'injection en positif. L'assistant de démarrage peut être passé sans compteur. Les installations existantes ne
+  changent pas : leur compteur actuel devient le compteur n° 1.
+- **Connecteurs d'appareils : Indevolt et IsyPower ne sont plus expérimentaux** (API locale officielle, vue fonctionner en
+  réel), et **série Zendure SolarFlow Mix reconnue** (3000 Mix AC+, 4000 Mix AC+, 4000 Mix Pro) par le cloud Zendure et le
+  remplissage automatique ; non encore confirmée sur un appareil réel. Catalogue des marques mis à jour : Anker SOLIX a un
+  Modbus TCP local officiel (Solarbank Max, XE, 4 E5000 Pro), Victron expose le MQTT et le Modbus TCP, Sigenergy, Sessy et
+  GivEnergy ajoutés.
+- **Diagnostic › Sonde Modbus** : TedEnergy lit, en lecture seule, les registres d'un appareil Modbus TCP du réseau local
+  (cartes Marstek Venus, Victron GX, Anker SOLIX, ou plage libre) et affiche les valeurs brutes. C'est aujourd'hui une façon de
+  tester des appareils pour valider leurs registres avant de les intégrer dans les connecteurs. Résultat copiable ou enregistrable
+  sans l'adresse de l'appareil, résumé dans le journal (`[SONDE_MODBUS]`) ; le support peut la lancer quand l'assistance à
+  distance est ouverte. Les utilisateurs qui la lancent peuvent écrire à contact@ted-energy.fr pour aider à fiabiliser leur marque.
+- **Charge planifiée : toutes les batteries finissent ensemble.** Quand le réseau limite la charge (12 kW pour 12 kVA), la
+  puissance était partagée selon la puissance maximale de chaque onduleur : les petites batteries se remplissaient en premier
+  et les grandes restaient à 70 % (relevé du 08/11 : de 70 % à 98 % à la fin du créneau). Elle est maintenant partagée selon
+  l'énergie qu'il reste à stocker dans chaque batterie, sans jamais dépasser la puissance de charge de chaque onduleur : toutes
+  arrivent au même niveau (environ 85 % dans le même cas), pour la même énergie stockée. Réglage « Finir la charge tous
+  ensemble » (Paramètres › Charge planifiée), actif par défaut.
+- **Préparation de la charge planifiée (Store) plus fiable** : niveaux attendus par onduleur à la fin du créneau (calculés avec
+  la même règle de partage), niveaux prévus au début du créneau d'après la consommation moyenne et la prévision solaire, budget
+  de charge basé sur la puissance souscrite complète (12 kVA = 12 kW) moins la maison, gain minimal de 0,5 kWh pour intervenir
+  (jamais en dessous), calcul qui doit rester utile 60 s avant de démarrer et décision maintenue 5 minutes une fois lancée.
+  Chaque décision est écrite dans le journal (`[PREPARATION]`, détail dans `preparation_journal.jsonl`), avec la comparaison
+  niveaux prévus / niveaux atteints à la fin du créneau.
+- Nouveau dans le Store (à tester) : **Réserve de secours**. TedEnergy lit les rafales de vent et les orages des trois
+  prochains jours dans la prévision météorologique (Open-Meteo, MET Norway). Quand une tempête est annoncée (seuil de rafales
+  réglable, 90 km/h par défaut, orages en option), ou à la date d'une coupure programmée que vous indiquez, les batteries sont
+  préparées N heures avant le début (12 h par défaut) : décharge bloquée, niveau maximal temporaire (100 % par défaut), charge
+  depuis le réseau en heures creuses puis dans les 3 dernières heures si besoin (ou toujours, ou jamais). La réserve est gardée
+  jusqu'à la fin annoncée de l'événement, puis tout redevient comme avant. Une tempête qui n'est plus annoncée avant d'avoir
+  commencé est annulée. TedEnergy ne bascule jamais l'installation hors réseau : c'est l'onduleur qui le fait s'il en est capable.
+- Nouveau dans le Store (à tester) : **Vente du surplus au bon moment**, pour les contrats qui rachètent l'électricité plus cher
+  que vous ne l'achetez à certaines heures. En dehors des moments de vente, la décharge est bloquée (ou régulation habituelle, au
+  choix) ; pendant la vente, l'objectif au compteur devient une injection fixe (3 kW par défaut : la maison consomme 1 kW, les
+  onduleurs déchargent 4 kW). Moments de vente : créneaux horaires (jours de la semaine, passage de minuit), une entité de Home
+  Assistant allumée, ou une quantité d'énergie (kWh) demandée par une entité : TedEnergy la livre puis s'arrête, même après un
+  redémarrage. Puissance fixe ou lue sur une entité, plafonnée par la puissance souscrite et par « Respect de l'injection
+  réseau » ; vente arrêtée au niveau gardé (20 % par défaut) ; kWh vendus comptés.
+- Store : **Veille de jour rouge**, **Mode vacances** et **Alertes d'anomalie** vérifiées et sorties du bloc « À tester ». Les idées
+  « Bientôt dans le Store » sont retirées. Corrigé : une fois le niveau atteint pendant les heures creuses, la veille de jour rouge
+  et la charge de nuit selon la météo gardent l'énergie chargée (décharge bloquée jusqu'à la fin des heures creuses) au lieu de la
+  laisser partir dans la maison puis de recharger aussitôt (allers-retours et pertes) ; la charge ne reprend que 3 points plus
+  bas. La charge de nuit « à toute heure » ne charge plus que la nuit. Après un redémarrage, le bilan des vacances et une alerte
+  déjà signalée ne sont plus renvoyés.
+- Refait : **prévision de la production solaire apprise sur votre installation**. Plus rien à déclarer (puissance,
+  inclinaison, orientation des panneaux) : TedEnergy apprend, heure par heure, comment VOTRE installation répond au
+  soleil direct et à la lumière des jours couverts, à partir de sa production réelle. Orientation, ombrages des arbres ou
+  des voisins et pertes sont compris ; une matinée claire suffit même si l'après-midi est nuageux ; l'apprentissage continue
+  chaque jour (panneaux ajoutés ou retirés, feuillage selon la saison) et la courbe se recalcule pour les jours plus courts
+  de l'hiver. La courbe « journée sans nuage » affichée est celle de votre installation, plus une courbe théorique.
+- Nouveau : **rayonnement mesuré par satellite** (EUMETSAT via Open-Meteo, Europe, Afrique et Asie ; case « Mesure
+  satellite », activée par défaut). Il voit le brouillard et les nuages bas que les modèles météo prévoient mal, sert à
+  reconnaître les heures vraiment claires et à corriger la journée quand les batteries pleines brident la production.
+- Nouveau : **correction de la journée en cours**. Dès qu'il y a assez de lumière, la prévision d'aujourd'hui suit la
+  production réelle des deux dernières heures (essai sur 15 jours : l'écart sur le reste de la journée passe de 46 % à
+  23 %). Nouvelles variables `meteo.solar_today_dayahead_kwh` (prévue la veille) et `meteo.correction_pct` ;
+  `meteo.solar_today_kwh` et `meteo.solar_remaining_today_kwh` sont désormais corrigées.
+- Nouveau : **historique des prévisions** (bouton « Historique des prévisions » de la page et du widget) : pour chaque
+  jour, la prévision de la veille (figée à minuit), la prévision corrigée dans la journée (chaque heure figée à son
+  début) et la production réelle, heure par heure, avec l'écart en %. Le widget « Solaire : prévu et réel » passe d'un
+  jour à l'autre avec ‹ ›.
+- Amélioré : les **sources météo** se combinent en donnant plus de poids à celles qui se sont le moins trompées chez vous
+  (après 5 jours comparés) ; sources conseillées selon votre région (pays nordiques : MET Norway d'abord).
+- Nouveau : **durée minimale d'activation d'une automatisation** (« Rester active au moins », en minutes, à côté du
+  « Délai minimal entre deux débuts »). Une fois commencée, l'automatisation garde ses effets pendant cette durée, même si la
+  condition redevient fausse ; ensuite elle se termine normalement. « Terminer quand elle est fausse depuis au moins » ne
+  suffisait pas : si la condition redevenait vraie à temps, l'automatisation ne se terminait jamais. À 0, rien ne change.
+- Amélioré : **niveau moyen des batteries des onduleurs pilotés** (variable des automatisations) = vraie valeur, pondérée par
+  la capacité en kWh de chaque onduleur (1 kWh vide + 4 kWh pleins = 80 %, pas 50 %), comme le niveau global du widget « Énergie
+  des batteries ». La moyenne simple n'est utilisée que tant que la capacité d'un onduleur est inconnue (batteries non
+  déclarées). La mention « moyenne simple » est retirée du widget.
+- Amélioré : tableau des **équipements** : « Puissance instantanée » et « Consommé » ; la colonne « Restitué » n'apparaît que
+  si une borne bidirectionnelle (V2G) est déclarée.
+- Nouveau : **protection du tableau électrique contre la surcharge** (activée par défaut). Le disjoncteur général ne voit
+  que le courant qui vient du réseau : les onduleurs injectent en aval de lui. Avec 6 kW de décharge et 10 kW du réseau, le
+  tableau porte 16 kW sans que rien ne coupe. TedEnergy surveille maintenant ce qui passe réellement dans le tableau (réseau
+  + sortie des onduleurs hybrides + micro-onduleurs ; le solaire d'un hybride n'est pas compté, seule sa sortie l'est) et,
+  au-dessus de **votre abonnement + 10 %** pendant 20 s sans interruption, **coupe la décharge de vos batteries** : la maison
+  repasse sur le réseau et le disjoncteur général retrouve son rôle de protection. Une barre rouge en haut de toutes les pages
+  dit pourquoi, et un bouton « Relancer la régulation » (avec confirmation) permet de reprendre tout de suite ; sinon la
+  décharge reprend seule quand la consommation reste 2 minutes sous 90 % du seuil. Une surcharge franche (plus de 150 % du
+  seuil) est coupée après 10 s. En triphasé, le calcul se fait phase par phase et seuls les onduleurs de la phase concernée
+  sont coupés. La désactiver (Paramètres › Abonnement et tarifs) demande de confirmer que l'on comprend le risque.
+  Nouvelles variables d'automatisation `panel.*`. TedEnergy n'agit que sur vos **onduleurs pilotés** : les onduleurs
+  surveillés et les micro-onduleurs comptent dans la mesure mais restent hors de son contrôle (le disjoncteur général
+  protège alors seul). Un nouveau widget **« Charge du tableau »** (bibliothèque du tableau de bord) montre ce qui passe
+  dans le tableau comme un compteur de vitesse, avec la limite avant la coupure.
+  **Effet à connaître :** avec un abonnement de 6 kVA, un pic de consommation au-dessus de 6,6 kW, auparavant complété par
+  les batteries, coupe désormais la décharge : renseignez la puissance réelle de votre abonnement. Si votre tableau, vos
+  câbles et vos disjoncteurs supportent plus que l'abonnement, faites-les vérifier par un électricien puis déclarez la
+  puissance acceptée dans le Store (« Capacité de mon tableau électrique ») : la décharge pourra s'ajouter au réseau
+  jusqu'à cette puissance.
+- Nouveau (Store, à tester) : **« Capacité de mon tableau électrique »**. Pour un tableau, des câbles et un jeu de barres
+  qui supportent plus que l'abonnement (abonnement 6 kVA, tableau prévu pour 12 kW), vous déclarez la puissance que votre
+  tableau peut porter (après contrôle par un électricien) : elle devient la base du seuil de coupure, toujours avec les 10 %
+  de marge. Désactivée, la protection revient à l'abonnement. Le réseau reste limité par l'abonnement.
 - Corrigé : **décharge emballée à la fin de la charge planifiée**. Les onduleurs mettent 10 à 20 secondes à
   arrêter leur charge, et la régulation prenait cette charge encore en cours pour une consommation de la maison :
   jusqu'à 7 kW de décharge sur tous les onduleurs pour quelques centaines de watts de besoin, puis plusieurs kW
